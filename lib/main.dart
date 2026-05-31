@@ -23,6 +23,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: AppTheme.darkTheme,
       routerConfig: _goRouter,
+      debugShowCheckedModeBanner: false,
     );
   }
 }
