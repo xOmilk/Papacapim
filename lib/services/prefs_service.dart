@@ -6,4 +6,9 @@ class PrefsService {
   static Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
   }
+
+  String? getToken() {
+    var token = _prefs.get("token") as String?;
+    return token;
+  }
 }
