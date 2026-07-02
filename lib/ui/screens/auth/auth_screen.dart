@@ -13,8 +13,8 @@ class AuthScreen extends StatelessWidget {
         body: TabBarView(children: [LoginScreen(), RegisterScreen()]),
         bottomNavigationBar: const TabBar(
           tabs: [
-            Tab(icon: Icon(Icons.home), text: "Login"),
-            Tab(icon: Icon(Icons.home), text: "Register"),
+            Tab(icon: Icon(Icons.login), text: "Login"),
+            Tab(icon: Icon(Icons.app_registration), text: "Register"),
           ],
         ),
       ),

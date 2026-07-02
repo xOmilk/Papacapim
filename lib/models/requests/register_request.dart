@@ -11,16 +11,18 @@ class RegisterRequest {
     required this.passwordConfirmation,
   });
 
-  factory RegisterRequest.fromJson(Map<String, Object> json) {
+  factory RegisterRequest.fromJson(Map<String, dynamic> json) {
+    final user = json['user'] as Map<String, dynamic>;
+
     return RegisterRequest(
-      login: json["login"] as String,
-      name: json["name"] as String,
-      password: json["password"] as String,
-      passwordConfirmation: json["passwordConfirmation"] as String,
+      login: user['login'] as String,
+      name: user['name'] as String,
+      password: user['password'] as String,
+      passwordConfirmation: user['passwordConfirmation'] as String,
     );
   }
 
-  Map<String, Object> toJson() {
+  Map<String, dynamic> toJson() {
     return {
       "user": {
         "login": login,

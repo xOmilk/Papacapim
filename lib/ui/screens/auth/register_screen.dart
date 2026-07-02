@@ -8,6 +8,10 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  void onSubmit() {
+    DefaultTabController.of(context).animateTo(0);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,7 +33,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
-                child: FilledButton(onPressed: () {}, child: Text("Submit")),
+                child: FilledButton(onPressed: onSubmit, child: Text("Submit")),
               ),
             ],
           ),

@@ -9,7 +9,7 @@ class LoginResponse {
     required this.ip,
   });
 
-  factory LoginResponse.fromJson(Map<String, Object> json) {
+  factory LoginResponse.fromJson(Map<String, dynamic> json) {
     return LoginResponse(
       userLogin: json["user_login"] as String,
       token: json["token"] as String,
@@ -17,7 +17,7 @@ class LoginResponse {
     );
   }
 
-  Map<String, Object> toJson() {
+  Map<String, dynamic> toJson() {
     return {"user_login": userLogin, "token": token, "ip": ip};
   }
 }
