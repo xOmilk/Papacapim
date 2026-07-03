@@ -4,8 +4,9 @@ import 'package:go_router/go_router.dart';
 
 class Post extends StatefulWidget {
   final PostResponse postResponse;
+  int? maxLines;
 
-  const Post({required this.postResponse, super.key});
+  Post({required this.postResponse, this.maxLines, super.key});
 
   @override
   State<Post> createState() => _PostState();
@@ -16,78 +17,72 @@ class _PostState extends State<Post> {
     context.push("/profile/${widget.postResponse.user?.login}");
   }
 
-  void onPostTap() {
-    print("Post");
-  }
-
   void onLikeTap() {
     print("Like");
   }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onPostTap,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          GestureDetector(
-            onTap: onProfileTap,
-            child: Row(
-              children: [
-                SizedBox(
-                  width: 45,
-                  height: 45,
-                  child: ClipRRect(
-                    borderRadius: BorderRadiusGeometry.all(
-                      Radius.circular(100),
-                    ),
-                    child: Image.network(
-                      widget.postResponse.user?.profileImage ?? "",
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return const Icon(Icons.broken_image, size: 64);
-                      },
-                    ),
-                  ),
-                ),
-                SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    widget.postResponse.user?.name ?? "",
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(height: 4),
-          Text(
-            widget.postResponse.message,
-            maxLines: 5,
-            overflow: TextOverflow.ellipsis,
-          ),
-          SizedBox(height: 4),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GestureDetector(
+          onTap: onProfileTap,
+          child: Row(
             children: [
-              Row(
-                children: [
-                  IconButton(onPressed: onPostTap, icon: Icon(Icons.message)),
-                  Text(widget.postResponse.repliesNumber.toString()),
-                ],
+              SizedBox(
+                width: 45,
+                height: 45,
+                child: ClipRRect(
+                  borderRadius: BorderRadiusGeometry.all(Radius.circular(100)),
+                  child: Image.network(
+                    widget.postResponse.user?.profileImage ?? "",
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Icon(Icons.broken_image, size: 64);
+                    },
+                  ),
+                ),
               ),
-              Row(
-                children: [
-                  IconButton(onPressed: onLikeTap, icon: Icon(Icons.thumb_up)),
-                  Text(widget.postResponse.likesNumber.toString()),
-                ],
+              SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  widget.postResponse.user?.name ?? "",
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ],
           ),
-        ],
-      ),
+        ),
+        SizedBox(height: 4),
+        Text(
+          widget.postResponse.message,
+          maxLines: widget.maxLines,
+          overflow: widget.maxLines == null ? null : TextOverflow.ellipsis,
+        ),
+        SizedBox(height: 4),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Icon(Icons.message),
+                ),
+                Text(widget.postResponse.repliesNumber.toString()),
+              ],
+            ),
+            Row(
+              children: [
+                IconButton(onPressed: onLikeTap, icon: Icon(Icons.thumb_up)),
+                Text(widget.postResponse.likesNumber.toString()),
+              ],
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

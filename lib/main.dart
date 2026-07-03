@@ -4,6 +4,7 @@ import 'package:flutter_project/ui/screens/auth/auth_screen.dart';
 import 'package:flutter_project/ui/screens/home/home_screen.dart';
 import 'package:flutter_project/themes/app_theme.dart';
 import 'package:flutter_project/ui/screens/posts/create_post_screen.dart';
+import 'package:flutter_project/ui/screens/posts/see_post.dart';
 import 'package:flutter_project/ui/screens/user/edit_profile.dart';
 import 'package:flutter_project/ui/screens/user/profile.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -32,6 +33,18 @@ final GoRouter _goRouter = GoRouter(
       builder: (context, state) {
         var login = state.pathParameters["login"];
         return ProfileScreen(login: login);
+      },
+    ),
+    GoRoute(
+      path: "/post/:id",
+      builder: (context, state) {
+        var param = state.pathParameters["id"];
+        if (param == null) return HomeScreen();
+
+        var id = int.tryParse(param);
+        if (id == null) return HomeScreen();
+
+        return SeePost(id: id);
       },
     ),
     GoRoute(

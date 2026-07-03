@@ -114,7 +114,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             sliver: SliverList.separated(
-              itemBuilder: (context, index) => Post(postResponse: posts[index]),
+              itemBuilder: (context, index) =>
+                  Post(postResponse: posts[index], maxLines: 5),
               separatorBuilder: (context, index) => Padding(
                 padding: EdgeInsetsGeometry.only(bottom: 8),
                 child: Divider(),

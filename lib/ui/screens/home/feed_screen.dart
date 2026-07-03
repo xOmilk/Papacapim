@@ -36,12 +36,19 @@ class _FeedScreenState extends State<FeedScreen> {
     context.push("/create-post");
   }
 
+  void onPostTap(PostResponse postResponse) {
+    context.push("/post/${postResponse.id}");
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: ListView.separated(
         padding: EdgeInsets.all(16),
-        itemBuilder: (context, index) => Post(postResponse: posts[index]),
+        itemBuilder: (context, index) => InkWell(
+          onTap: () => onPostTap(posts[index]),
+          child: Post(postResponse: posts[index], maxLines: 5),
+        ),
         separatorBuilder: (context, index) => Padding(
           padding: EdgeInsetsGeometry.only(bottom: 8),
           child: Divider(),
