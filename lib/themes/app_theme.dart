@@ -22,6 +22,12 @@ class AppTheme {
     ),
     scaffoldBackgroundColor: Color(0xFF111111),
     fontFamily: "Roboto",
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        padding: EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+      ),
+    ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
         padding: EdgeInsets.symmetric(vertical: 16),

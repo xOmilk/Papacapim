@@ -4,9 +4,9 @@ import 'package:go_router/go_router.dart';
 
 class Post extends StatefulWidget {
   final PostResponse postResponse;
-  int? maxLines;
+  final int? maxLines;
 
-  Post({required this.postResponse, this.maxLines, super.key});
+  const Post({required this.postResponse, this.maxLines, super.key});
 
   @override
   State<Post> createState() => _PostState();
@@ -30,21 +30,25 @@ class _PostState extends State<Post> {
           onTap: onProfileTap,
           child: Row(
             children: [
-              SizedBox(
-                width: 45,
-                height: 45,
-                child: ClipRRect(
-                  borderRadius: BorderRadiusGeometry.all(Radius.circular(100)),
-                  child: Image.network(
-                    widget.postResponse.user?.profileImage ?? "",
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return const Icon(Icons.broken_image, size: 64);
-                    },
+              if (widget.postResponse.user?.profileImage != null)
+                SizedBox(
+                  width: 45,
+                  height: 45,
+                  child: ClipRRect(
+                    borderRadius: BorderRadiusGeometry.all(
+                      Radius.circular(100),
+                    ),
+                    child: Image.network(
+                      widget.postResponse.user!.profileImage!,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return const Icon(Icons.broken_image, size: 64);
+                      },
+                    ),
                   ),
                 ),
-              ),
-              SizedBox(width: 8),
+              if (widget.postResponse.user?.profileImage != null)
+                SizedBox(width: 8),
               Expanded(
                 child: Text(
                   widget.postResponse.user?.name ?? "",

@@ -49,6 +49,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
     context.push("/edit-profile");
   }
 
+  void onLogoutButton() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Sair da conta?"),
+        content: Text("Você tem certeza que deseja sair da sua conta"),
+        actions: [
+          TextButton(
+            style: ButtonStyle(
+              overlayColor: WidgetStatePropertyAll(Colors.transparent),
+            ),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text(
+              "Cancelar",
+              style: TextStyle(color: Theme.of(context).colorScheme.outline),
+            ),
+          ),
+          FilledButton(
+            style: ButtonStyle(
+              backgroundColor: WidgetStatePropertyAll(
+                Theme.of(context).colorScheme.error,
+              ),
+            ),
+            onPressed: onLogout,
+            child: Text("Sair"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void onLogout() {
+    context.replace("/auth");
+    Navigator.of(context).pop();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,6 +98,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         actions: [
           if (widget.login == null)
             IconButton(onPressed: onEditTap, icon: Icon(Icons.edit)),
+          if (widget.login == null)
+            IconButton(onPressed: onLogoutButton, icon: Icon(Icons.logout)),
         ],
       ),
       body: CustomScrollView(
@@ -69,23 +109,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: [
-                  SizedBox(
-                    width: 80,
-                    height: 80,
-                    child: ClipRRect(
-                      borderRadius: BorderRadiusGeometry.all(
-                        Radius.circular(100),
-                      ),
-                      child: Image.network(
-                        user.profileImage,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return const Icon(Icons.broken_image, size: 64);
-                        },
+                  if (user.profileImage != null)
+                    SizedBox(
+                      width: 80,
+                      height: 80,
+                      child: ClipRRect(
+                        borderRadius: BorderRadiusGeometry.all(
+                          Radius.circular(100),
+                        ),
+                        child: Image.network(
+                          user.profileImage!,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(Icons.broken_image, size: 64);
+                          },
+                        ),
                       ),
                     ),
-                  ),
-                  SizedBox(height: 8),
+                  if (user.profileImage != null) SizedBox(height: 8),
                   Text(
                     user.name,
                     maxLines: 1,

@@ -1,14 +1,14 @@
 class UserResponse {
   final String login;
   final String name;
-  final String profileImage;
+  final String? profileImage;
   final int? followersNumber;
   final int? followingNumber;
 
   const UserResponse({
     required this.login,
     required this.name,
-    required this.profileImage,
+    this.profileImage,
     this.followersNumber,
     this.followingNumber,
   });

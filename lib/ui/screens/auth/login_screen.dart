@@ -13,7 +13,7 @@ class _LoginScreenState extends State<LoginScreen> {
   var prefs = PrefsService();
 
   void onSubmit() {
-    context.replace("/");
+    context.go("/");
   }
 
   @override

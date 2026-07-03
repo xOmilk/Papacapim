@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_project/models/responses/post_response.dart';
 import 'package:flutter_project/models/responses/user_response.dart';
 import 'package:flutter_project/ui/components/post.dart';
+import 'package:flutter_project/ui/components/reply_input.dart';
 import 'package:go_router/go_router.dart';
 
 class SeePost extends StatefulWidget {
@@ -83,6 +84,8 @@ class _SeePostState extends State<SeePost> {
                       color: Theme.of(context).colorScheme.outline,
                     ),
                   ),
+                  SizedBox(height: 16),
+                  ReplyInput(),
                 ],
               ),
             ),
