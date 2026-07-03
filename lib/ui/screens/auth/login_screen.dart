@@ -11,6 +11,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   var prefs = PrefsService();
+  final _formKey = GlobalKey<FormState>();
 
   void onSubmit() {
     context.go("/");
@@ -22,20 +23,26 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Center(
         child: SizedBox(
           width: 300,
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text("LOGIN", style: TextStyle(fontSize: 30)),
-              TextField(decoration: InputDecoration(hintText: "Login")),
-              TextField(decoration: InputDecoration(hintText: "Senha")),
-              SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(onPressed: onSubmit, child: Text("Submit")),
-              ),
-            ],
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text("LOGIN", style: TextStyle(fontSize: 30)),
+                TextField(decoration: InputDecoration(hintText: "Login")),
+                TextField(decoration: InputDecoration(hintText: "Senha")),
+                SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: onSubmit,
+                    child: Text("Submit"),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

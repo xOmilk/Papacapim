@@ -18,7 +18,7 @@ class AppTheme {
       onSurface: Color(0xFFF0F0F0),
       surfaceContainerHighest: Color(0xFF201F1F),
       outline: Color(0xFF6B6B69),
-      outlineVariant: Color(0xFF6B6B69),
+      outlineVariant: Color(0xFF4B4B4A),
     ),
     scaffoldBackgroundColor: Color(0xFF111111),
     fontFamily: "Roboto",
