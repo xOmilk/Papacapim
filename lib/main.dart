@@ -4,7 +4,7 @@ import 'package:flutter_project/ui/screens/auth/auth_screen.dart';
 import 'package:flutter_project/ui/screens/home/home_screen.dart';
 import 'package:flutter_project/themes/app_theme.dart';
 import 'package:flutter_project/ui/screens/posts/create_post_screen.dart';
-import 'package:flutter_project/ui/screens/user/my_profile.dart';
+import 'package:flutter_project/ui/screens/user/profile.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -20,7 +20,14 @@ final GoRouter _goRouter = GoRouter(
     GoRoute(path: "/auth", builder: (context, state) => const AuthScreen()),
     GoRoute(
       path: "/my-profile",
-      builder: (context, state) => const MyProfileScreen(),
+      builder: (context, state) => const ProfileScreen(),
+    ),
+    GoRoute(
+      path: "/profile/:login",
+      builder: (context, state) {
+        var login = state.pathParameters["login"];
+        return ProfileScreen(login: login);
+      },
     ),
     GoRoute(
       path: "/create-post",
