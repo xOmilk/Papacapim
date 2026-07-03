@@ -45,6 +45,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     context.pop();
   }
 
+  void onEditTap() {
+    context.push("/edit-profile");
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,6 +57,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ? IconButton(onPressed: onGoingBack, icon: Icon(Icons.arrow_back))
             : null,
         title: Text(widget.login != null ? "Perfil" : "Meu perfil"),
+        actions: [
+          if (widget.login == null)
+            IconButton(onPressed: onEditTap, icon: Icon(Icons.edit)),
+        ],
       ),
       body: CustomScrollView(
         slivers: [
@@ -89,6 +97,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     style: TextStyle(
                       fontSize: 14,
                       color: Theme.of(context).colorScheme.outline,
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    "Posts",
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight(700),
                     ),
                   ),
                 ],
