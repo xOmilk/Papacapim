@@ -19,6 +19,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     name: "Luan Coelho",
     profileImage:
         "https://upload.wikimedia.org/wikipedia/commons/4/49/Panthera_tigris_tigris.jpg",
+    followersNumber: 10000,
+    followingNumber: 100,
   );
 
   List<PostResponse> posts = List.filled(
@@ -40,6 +42,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     ),
   );
+
+  bool following = false;
 
   void onGoingBack() {
     context.pop();
@@ -140,6 +144,76 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       color: Theme.of(context).colorScheme.outline,
                     ),
                   ),
+                  SizedBox(height: 16),
+                  IntrinsicHeight(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Column(
+                          children: [
+                            Text(
+                              "Seguindo  ",
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.outline,
+                              ),
+                            ),
+                            Text(
+                              (user.followingNumber ?? "?").toString(),
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontWeight: FontWeight(700),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16),
+                          child: VerticalDivider(
+                            thickness: 1,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        Column(
+                          children: [
+                            Text(
+                              "Seguidores",
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.outline,
+                              ),
+                            ),
+                            Text(
+                              (user.followersNumber ?? "?").toString(),
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontWeight: FontWeight(700),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (widget.login != null) SizedBox(height: 16),
+                  if (widget.login != null)
+                    FilledButton(
+                      onPressed: () {
+                        setState(() {
+                          following = !following;
+                        });
+                      },
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStatePropertyAll(
+                          following
+                              ? Theme.of(context).colorScheme.errorContainer
+                              : Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Text(following ? "Deixar de seguir" : "Seguir"),
+                      ),
+                    ),
                   SizedBox(height: 16),
                   Text(
                     "Posts",

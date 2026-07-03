@@ -11,7 +11,9 @@ class FeedScreen extends StatefulWidget {
   State<FeedScreen> createState() => _FeedScreenState();
 }
 
-class _FeedScreenState extends State<FeedScreen> {
+class _FeedScreenState extends State<FeedScreen>
+    with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
   List<PostResponse> posts = List.filled(
     10,
     PostResponse(
@@ -32,6 +34,18 @@ class _FeedScreenState extends State<FeedScreen> {
     ),
   );
 
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
   void onFabPress() {
     context.push("/create-post");
   }
@@ -43,21 +57,47 @@ class _FeedScreenState extends State<FeedScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ListView.separated(
-        padding: EdgeInsets.all(16),
-        itemBuilder: (context, index) => InkWell(
-          onTap: () => onPostTap(posts[index]),
-          child: Post(postResponse: posts[index], maxLines: 5),
+      appBar: AppBar(
+        title: TabBar(
+          controller: _tabController,
+          tabs: const [
+            Tab(text: "Following"),
+            Tab(text: "For you"),
+          ],
         ),
-        separatorBuilder: (context, index) => Padding(
-          padding: EdgeInsetsGeometry.only(bottom: 8),
-          child: Divider(),
-        ),
-        itemCount: posts.length,
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          ListView.separated(
+            padding: const EdgeInsets.all(16),
+            itemBuilder: (context, index) => InkWell(
+              onTap: () => onPostTap(posts[index]),
+              child: Post(postResponse: posts[index], maxLines: 5),
+            ),
+            separatorBuilder: (context, index) => const Padding(
+              padding: EdgeInsets.only(bottom: 8),
+              child: Divider(),
+            ),
+            itemCount: posts.length,
+          ),
+          ListView.separated(
+            padding: const EdgeInsets.all(16),
+            itemBuilder: (context, index) => InkWell(
+              onTap: () => onPostTap(posts[index]),
+              child: Post(postResponse: posts[index], maxLines: 5),
+            ),
+            separatorBuilder: (context, index) => const Padding(
+              padding: EdgeInsets.only(bottom: 8),
+              child: Divider(),
+            ),
+            itemCount: posts.length,
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: onFabPress,
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
     );
   }
