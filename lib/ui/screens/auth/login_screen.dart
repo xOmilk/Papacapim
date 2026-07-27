@@ -13,6 +13,14 @@ class _LoginScreenState extends State<LoginScreen> {
   var prefs = PrefsService();
   final _formKey = GlobalKey<FormState>();
 
+  bool _isObscure = true;
+
+  void onObscureToggle() {
+    setState(() {
+      _isObscure = !_isObscure;
+    });
+  }
+
   void onSubmit() {
     context.go("/");
   }
@@ -32,7 +40,18 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 Text("LOGIN", style: TextStyle(fontSize: 30)),
                 TextField(decoration: InputDecoration(hintText: "Login")),
-                TextField(decoration: InputDecoration(hintText: "Senha")),
+                TextField(
+                  decoration: InputDecoration(
+                    hintText: "Senha",
+                    suffixIcon: IconButton(
+                      onPressed: onObscureToggle,
+                      icon: Icon(
+                        _isObscure ? Icons.visibility_off : Icons.visibility,
+                      ),
+                    ),
+                  ),
+                  obscureText: _isObscure,
+                ),
                 SizedBox(height: 16),
                 SizedBox(
                   width: double.infinity,

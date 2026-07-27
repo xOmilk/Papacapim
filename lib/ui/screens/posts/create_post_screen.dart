@@ -38,7 +38,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         user: const UserResponse(
           login: "me",
           name: "Eu Mesmo",
-          profileImage: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQiQYULA2iPnmbaEcFvMp2JHp-8efHVSDnCDCHnPIK9UQ&s=10",
+          profileImage:
+              "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQiQYULA2iPnmbaEcFvMp2JHp-8efHVSDnCDCHnPIK9UQ&s=10",
         ),
       );
       globalMockNewPost = mockPost;
@@ -57,12 +58,11 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         actions: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: FilledButton(
-              style: ButtonStyle(),
+            child: TextButton(
               onPressed: onPublish,
               child: const Text("Publicar"),
             ),
-          )
+          ),
         ],
       ),
       body: Padding(
