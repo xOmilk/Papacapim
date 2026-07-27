@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_project/models/responses/post_response.dart';
+import 'package:flutter_project/models/responses/user_response.dart';
 import 'package:go_router/go_router.dart';
+
+PostResponse? globalMockNewPost;
 
 class CreatePostScreen extends StatefulWidget {
   const CreatePostScreen({super.key});
@@ -22,12 +26,23 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   }
 
   void onPublish() {
-    // Aqui você pode adicionar a lógica para salvar o post com o backend
     final message = _messageController.text;
     if (message.isNotEmpty) {
-      // ignore: avoid_print
-      print("Publicando: $message");
-      context.pop();
+      final mockPost = PostResponse(
+        id: DateTime.now().millisecondsSinceEpoch,
+        message: message,
+        createdAt: DateTime.now(),
+        likesNumber: 0,
+        repliesNumber: 0,
+        youLiked: false,
+        user: const UserResponse(
+          login: "me",
+          name: "Eu Mesmo",
+          profileImage: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQiQYULA2iPnmbaEcFvMp2JHp-8efHVSDnCDCHnPIK9UQ&s=10",
+        ),
+      );
+      globalMockNewPost = mockPost;
+      context.replace("/my-profile");
     }
   }
 

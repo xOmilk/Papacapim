@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_project/models/responses/post_response.dart';
 import 'package:flutter_project/models/responses/user_response.dart';
 import 'package:flutter_project/ui/components/post.dart';
+import 'package:flutter_project/ui/screens/posts/create_post_screen.dart';
 import 'package:go_router/go_router.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -14,7 +15,7 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  final UserResponse user = UserResponse(
+  final UserResponse user = const UserResponse(
     login: "luan",
     name: "Luan Coelho",
     profileImage:
@@ -23,10 +24,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     followingNumber: 100,
   );
 
-  List<PostResponse> posts = List.filled(
+  late List<PostResponse> posts = List.generate(
     10,
-    PostResponse(
-      id: 1,
+    (index) => PostResponse(
+      id: index + 1,
       postId: null,
       message:
           "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ante lectus, tempus id viverra vitae, porttitor et tortor. Integer et lobortis quam. Ut dignissim sodales molestie. Pellentesque vestibulum odio at ipsum vestibulum accumsan. Suspendisse posuere dignissim libero, sodales efficitur justo sagittis ultrices. Cras in tempor magna, quis accumsan lectus. Vestibulum ultricies est ac justo aliquam vulputate. Suspendisse molestie lacinia eros ut finibus. Suspendisse potenti. Duis iaculis, erat ac iaculis laoreet, ipsum massa porttitor neque, non imperdiet nibh diam vel justo. Fusce erat elit, venenatis et ultrices nec, dapibus nec risus. Fusce aliquam mattis mauris sit amet dignissim. Nunc tempus aliquet ipsum ac interdum. Suspendisse potenti.",
@@ -34,7 +35,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       likesNumber: 10,
       repliesNumber: 1,
       youLiked: false,
-      user: UserResponse(
+      user: const UserResponse(
         login: "luan",
         name: "Luan Coelho",
         profileImage:
@@ -44,6 +45,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
   );
 
   bool following = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (globalMockNewPost != null) {
+      posts.insert(0, globalMockNewPost!);
+      globalMockNewPost = null;
+    }
+  }
 
   void onGoingBack() {
     context.pop();
@@ -229,8 +239,57 @@ class _ProfileScreenState extends State<ProfileScreen> {
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             sliver: SliverList.separated(
-              itemBuilder: (context, index) =>
-                  Post(postResponse: posts[index], maxLines: 5),
+              itemBuilder: (context, index) => Post(
+                postResponse: posts[index],
+                maxLines: 5,
+                onDelete: widget.login == null
+                    ? () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text("Excluir post?"),
+                            content: const Text(
+                              "Tem certeza que deseja excluir este post?",
+                            ),
+                            actions: [
+                              TextButton(
+                                style: const ButtonStyle(
+                                  overlayColor: WidgetStatePropertyAll(
+                                    Colors.transparent,
+                                  ),
+                                ),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text(
+                                  "Cancelar",
+                                  style: TextStyle(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.outline,
+                                  ),
+                                ),
+                              ),
+                              FilledButton(
+                                style: ButtonStyle(
+                                  backgroundColor: WidgetStatePropertyAll(
+                                    Theme.of(context).colorScheme.error,
+                                  ),
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    posts.removeAt(index);
+                                  });
+                                  Navigator.of(context).pop();
+                                },
+                                child: const Text("Excluir"),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+                    : null,
+              ),
               separatorBuilder: (context, index) => Padding(
                 padding: EdgeInsetsGeometry.only(bottom: 8),
                 child: Divider(),

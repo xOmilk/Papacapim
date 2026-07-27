@@ -5,8 +5,9 @@ import 'package:go_router/go_router.dart';
 class Post extends StatefulWidget {
   final PostResponse postResponse;
   final int? maxLines;
+  final VoidCallback? onDelete;
 
-  const Post({required this.postResponse, this.maxLines, super.key});
+  const Post({required this.postResponse, this.maxLines, this.onDelete, super.key});
 
   @override
   State<Post> createState() => _PostState();
@@ -56,6 +57,12 @@ class _PostState extends State<Post> {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
+              if (widget.onDelete != null)
+                IconButton(
+                  icon: const Icon(Icons.delete_outline),
+                  color: Theme.of(context).colorScheme.error,
+                  onPressed: widget.onDelete,
+                ),
             ],
           ),
         ),
