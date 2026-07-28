@@ -113,14 +113,17 @@ class _EditProfileState extends State<EditProfile> {
                     Positioned(
                       right: 0,
                       bottom: 0,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(100)),
-                          color: Theme.of(context).colorScheme.outlineVariant,
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(4),
-                          child: Icon(Icons.edit),
+                      child: GestureDetector(
+                        onTap: onImageTap,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.all(Radius.circular(100)),
+                            color: Theme.of(context).colorScheme.outlineVariant,
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(4),
+                            child: Icon(Icons.edit),
+                          ),
                         ),
                       ),
                     ),
