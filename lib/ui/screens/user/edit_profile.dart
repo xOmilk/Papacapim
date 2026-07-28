@@ -133,7 +133,7 @@ class _EditProfileState extends State<EditProfile> {
                 SizedBox(height: 8),
                 SizedBox(
                   width: double.infinity,
-                  child: FilledButton(
+                  child: TextButton(
                     onPressed: () {},
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8),
