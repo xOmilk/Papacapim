@@ -12,6 +12,8 @@ class _ReplyInputState extends State<ReplyInput> {
   Widget build(BuildContext context) {
     return TextField(
       decoration: InputDecoration(
+        hintText: "Adicione um comentário...",
+        hintStyle: TextStyle(color: Colors.grey),
         border: OutlineInputBorder(
           borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
         ),
