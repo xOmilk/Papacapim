@@ -109,11 +109,11 @@ class _EditProfileState extends State<EditProfile> {
     );
   }
 
-  void deleteProfile() {
+  void deleteProfileDialog() {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Excluir post?"),
+        title: const Text("Excluir conta?"),
         content: const Text("Tem certeza que deseja excluir esta conta?"),
         actions: [
           TextButton(
@@ -136,6 +136,7 @@ class _EditProfileState extends State<EditProfile> {
             ),
             onPressed: () {
               Navigator.of(context).pop();
+              context.replace("/auth");
             },
             child: const Text("Excluir"),
           ),
@@ -282,7 +283,7 @@ class _EditProfileState extends State<EditProfile> {
                         Theme.of(context).colorScheme.error,
                       ),
                     ),
-                    onPressed: () {},
+                    onPressed: deleteProfileDialog,
                     child: Text("Excluir conta"),
                   ),
                 ),
