@@ -74,7 +74,9 @@ class _EditProfileState extends State<EditProfile> {
                           });
                         },
                         icon: Icon(
-                          obscureConfirm ? Icons.visibility_off : Icons.visibility,
+                          obscureConfirm
+                              ? Icons.visibility_off
+                              : Icons.visibility,
                         ),
                       ),
                     ),
@@ -104,6 +106,41 @@ class _EditProfileState extends State<EditProfile> {
           },
         );
       },
+    );
+  }
+
+  void deleteProfile() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Excluir post?"),
+        content: const Text("Tem certeza que deseja excluir esta conta?"),
+        actions: [
+          TextButton(
+            style: const ButtonStyle(
+              overlayColor: WidgetStatePropertyAll(Colors.transparent),
+            ),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text(
+              "Cancelar",
+              style: TextStyle(color: Theme.of(context).colorScheme.outline),
+            ),
+          ),
+          FilledButton(
+            style: ButtonStyle(
+              backgroundColor: WidgetStatePropertyAll(
+                Theme.of(context).colorScheme.error,
+              ),
+            ),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text("Excluir"),
+          ),
+        ],
+      ),
     );
   }
 
@@ -234,6 +271,19 @@ class _EditProfileState extends State<EditProfile> {
                   child: FilledButton(
                     onPressed: () {},
                     child: Text("Atualizar"),
+                  ),
+                ),
+                SizedBox(height: 8),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    style: ButtonStyle(
+                      backgroundColor: WidgetStatePropertyAll(
+                        Theme.of(context).colorScheme.error,
+                      ),
+                    ),
+                    onPressed: () {},
+                    child: Text("Excluir conta"),
                   ),
                 ),
               ],
