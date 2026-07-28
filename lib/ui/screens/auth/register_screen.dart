@@ -10,6 +10,14 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
 
+  bool _isObscure = true;
+
+  void onObscureToggle() {
+    setState(() {
+      _isObscure = !_isObscure;
+    });
+  }
+
   void onSubmit() {
     DefaultTabController.of(context).animateTo(0);
   }
@@ -30,9 +38,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 Text("REGISTRO", style: TextStyle(fontSize: 30)),
                 TextField(decoration: InputDecoration(hintText: "Login")),
                 TextField(decoration: InputDecoration(hintText: "Nome")),
-                TextField(decoration: InputDecoration(hintText: "Senha")),
                 TextField(
-                  decoration: InputDecoration(hintText: "Confirme sua senha"),
+                  decoration: InputDecoration(
+                    hintText: "Senha",
+                    suffixIcon: IconButton(
+                      onPressed: onObscureToggle,
+                      icon: Icon(
+                        _isObscure ? Icons.visibility_off : Icons.visibility,
+                      ),
+                    ),
+                  ),
+                  obscureText: _isObscure,
+                ),
+                TextField(
+                  decoration: InputDecoration(
+                    hintText: "Senha",
+                    suffixIcon: IconButton(
+                      onPressed: onObscureToggle,
+                      icon: Icon(
+                        _isObscure ? Icons.visibility_off : Icons.visibility,
+                      ),
+                    ),
+                  ),
+                  obscureText: _isObscure,
                 ),
                 SizedBox(height: 16),
                 SizedBox(
