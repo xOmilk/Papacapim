@@ -16,6 +16,7 @@ dependencies:
   dio: ^5.9.2
   image_picker: ^1.2.3
   flutter_launcher_icons: ^0.14.4
+  flutter_svg: ^2.3.0
 
 dev_dependencies:
   flutter_test:
@@ -29,6 +30,8 @@ flutter_launcher_icons:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/icons/
   fonts:
     - family: Sora
       fonts:

@@ -3,6 +3,7 @@ import 'package:flutter_project/services/prefs_service.dart';
 import 'package:flutter_project/ui/screens/home/feed_screen.dart';
 import 'package:flutter_project/ui/screens/home/search_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -39,7 +40,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           title: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Icon(Icons.grass, color: Theme.of(context).colorScheme.primary),
+              SvgPicture.asset(
+                "assets/icons/app_icon.svg",
+                colorFilter: ColorFilter.mode(
+                  Theme.of(context).colorScheme.primary,
+                  BlendMode.srcIn,
+                ),
+                width: 28,
+                height: 28,
+              ),
               SizedBox(width: 4),
               Text(
                 "Papacapim",
