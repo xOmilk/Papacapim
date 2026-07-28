@@ -25,27 +25,62 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text("REGISTRO", style: TextStyle(fontSize: 30)),
-                TextField(decoration: InputDecoration(hintText: "Login")),
-                TextField(decoration: InputDecoration(hintText: "Nome")),
-                TextField(
-                  decoration: InputDecoration(hintText: "Senha"),
-                  obscureText: true,
+                Center(child: Text("REGISTRO", style: TextStyle(fontSize: 30))),
+                SizedBox(height: 32),
+
+                Text(
+                  "Login",
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                 ),
+                SizedBox(height: 4),
                 TextField(
-                  decoration: InputDecoration(hintText: "Confirme sua senha"),
+                  decoration: InputDecoration(
+                    hintStyle: TextStyle(color: Colors.grey),
+                    hintText: "Ex: seu_usuario",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                SizedBox(height: 16),
+
+                Text(
+                  "Nome",
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                ),
+                SizedBox(height: 4),
+                TextField(
+                  decoration: InputDecoration(
+                    hintStyle: TextStyle(color: Colors.grey),
+                    hintText: "Ex: Gabriel Silva",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                SizedBox(height: 16),
+
+                Text(
+                  "Senha",
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                ),
+                SizedBox(height: 4),
+                TextField(
+                  decoration: InputDecoration(border: OutlineInputBorder()),
                   obscureText: true,
                 ),
                 SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
-                    onPressed: onSubmit,
-                    child: Text("Submit"),
-                  ),
+
+                Text(
+                  "Confirme sua senha",
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                 ),
+                SizedBox(height: 4),
+                TextField(
+                  decoration: InputDecoration(border: OutlineInputBorder()),
+                  obscureText: true,
+                ),
+                SizedBox(height: 24),
+
+                FilledButton(onPressed: onSubmit, child: Text("Registrar")),
               ],
             ),
           ),

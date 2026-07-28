@@ -36,13 +36,35 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text("LOGIN", style: TextStyle(fontSize: 30)),
-                TextField(decoration: InputDecoration(hintText: "Login")),
+                Center(child: Text("LOGIN", style: TextStyle(fontSize: 30))),
+                SizedBox(height: 32),
+
+                Text(
+                  "Usuário",
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                ),
+                SizedBox(height: 4),
                 TextField(
                   decoration: InputDecoration(
-                    hintText: "Senha",
+                    hintStyle: TextStyle(color: Colors.grey),
+                    hintText: "Ex: seu_usuario",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                SizedBox(height: 16),
+
+                Text(
+                  "Senha",
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                ),
+                SizedBox(height: 4),
+                TextField(
+                  decoration: InputDecoration(
+                    hintText: "Sua senha secreta",
+                    hintStyle: TextStyle(color: Colors.grey),
+                    border: OutlineInputBorder(),
                     suffixIcon: IconButton(
                       onPressed: onObscureToggle,
                       icon: Icon(
@@ -52,14 +74,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   obscureText: _isObscure,
                 ),
-                SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
-                    onPressed: onSubmit,
-                    child: Text("Submit"),
-                  ),
-                ),
+                SizedBox(height: 24),
+
+                FilledButton(onPressed: onSubmit, child: Text("Entrar")),
               ],
             ),
           ),
