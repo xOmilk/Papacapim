@@ -64,7 +64,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 SizedBox(height: 4),
                 TextField(
-                  decoration: InputDecoration(border: OutlineInputBorder()),
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    hintStyle: TextStyle(color: Colors.grey),
+                    hintText: "*******",
+                  ),
                   obscureText: true,
                 ),
                 SizedBox(height: 16),
@@ -75,7 +79,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 SizedBox(height: 4),
                 TextField(
-                  decoration: InputDecoration(border: OutlineInputBorder()),
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    hintStyle: TextStyle(color: Colors.grey),
+                    hintText: "*******",
+                  ),
                   obscureText: true,
                 ),
                 SizedBox(height: 24),
