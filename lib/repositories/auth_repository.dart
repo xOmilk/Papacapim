@@ -26,7 +26,7 @@ class AuthRepository {
   Future<RegisterResponse> register(RegisterRequest request) async {
     try {
       final responseRegister = await _dio.post(
-        "/register",
+        "/users",
         data: request.toJson(),
       );
       return RegisterResponse.fromJson(responseRegister.data);
