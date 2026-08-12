@@ -1,17 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_project/models/requests/login_request.dart';
+import 'package:flutter_project/repositories/auth_repository.dart';
 import 'package:flutter_project/services/prefs_service.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   var prefs = PrefsService();
   final _formKey = GlobalKey<FormState>();
+
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
 
   bool _isObscure = true;
 
@@ -21,8 +27,30 @@ class _LoginScreenState extends State<LoginScreen> {
     });
   }
 
-  void onSubmit() {
-    context.go("/");
+  void onSubmit() async {
+    final loginRequest = LoginRequest(
+      login: _usernameController.text,
+      password: _passwordController.text,
+    );
+
+    final authRepo = ref.read(authRepositoryProvider);
+
+    try {
+      final response = await authRepo.login(loginRequest);
+
+      print("Token retornado ${response.token}");
+
+      if (mounted) {
+        context.go("/");
+      }
+    } catch (e) {
+      // Se deu erro, avisa o usuário
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Erro ao fazer login')));
+      }
+    }
   }
 
   @override
@@ -47,6 +75,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 SizedBox(height: 4),
                 TextField(
+                  controller: _usernameController,
                   decoration: InputDecoration(
                     hintStyle: TextStyle(color: Colors.grey),
                     hintText: "Ex: seu_usuario",
@@ -61,6 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 SizedBox(height: 4),
                 TextField(
+                  controller: _passwordController,
                   decoration: InputDecoration(
                     hintText: "Sua senha secreta",
                     hintStyle: TextStyle(color: Colors.grey),
