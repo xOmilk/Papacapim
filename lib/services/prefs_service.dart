@@ -8,7 +8,11 @@ class PrefsService {
   }
 
   String? getToken() {
-    var token = _prefs.get("token") as String?;
+    var token = _prefs.getString("token");
     return token;
+  }
+
+  Future<void> setToken(String token) async {
+    await _prefs.setString("token", token);
   }
 }

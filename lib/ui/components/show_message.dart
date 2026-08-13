@@ -14,12 +14,11 @@ void showMessage(BuildContext context, String message, {bool isError = false}) {
       content: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          // Fundo sutil usando as cores da sua paleta dark
           color: colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.3), // Sombra um pouco mais forte para o tema dark
+              color: Colors.black.withOpacity(0.3),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -29,7 +28,6 @@ void showMessage(BuildContext context, String message, {bool isError = false}) {
           children: [
             Icon(
               isError ? Icons.error_outline : Icons.check_circle_outline,
-              // As cores exatas de erro (vermelho) e primária (verde) do seu tema!
               color: isError ? colorScheme.error : colorScheme.primary,
             ),
             const SizedBox(width: 12),
@@ -37,7 +35,6 @@ void showMessage(BuildContext context, String message, {bool isError = false}) {
               child: Text(
                 message,
                 style: TextStyle(
-                  // Usando o onSurface para o texto combinar com o tema
                   color: colorScheme.onSurface,
                   fontWeight: FontWeight.w600,
                   fontSize: 14,

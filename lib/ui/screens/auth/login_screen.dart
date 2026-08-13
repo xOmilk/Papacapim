@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_project/models/requests/login_request.dart';
+import 'package:flutter_project/notifiers/prefs_provider.dart';
 import 'package:flutter_project/repositories/auth_repository.dart';
 import 'package:flutter_project/services/prefs_service.dart';
 import 'package:flutter_project/ui/components/show_message.dart';
@@ -38,12 +39,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     try {
       final response = await authRepo.login(loginRequest);
+      final preferences = ref.read(prefsProvider);
 
       print("Token retornado ${response.token}");
+      await preferences.setToken(response.token);
 
-      showMessage(context, "Usuário logado com sucesso");
+      ref.invalidate(tokenProvider);
 
       if (mounted) {
+        showMessage(context, "Usuário logado com sucesso");
         context.go("/");
       }
     } catch (e) {
