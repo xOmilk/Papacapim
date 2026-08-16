@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_project/models/responses/post_response.dart';
 import 'package:flutter_project/models/responses/user_response.dart';
+import 'package:flutter_project/repositories/auth_repository.dart';
 import 'package:flutter_project/ui/components/post.dart';
 import 'package:flutter_project/ui/screens/posts/create_post_screen.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class ProfileScreen extends StatefulWidget {
+class ProfileScreen extends ConsumerStatefulWidget {
   final String? login;
 
   const ProfileScreen({this.login, super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   final UserResponse user = const UserResponse(
     login: "luan",
     name: "Luan Coelho",
@@ -23,6 +25,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     followersNumber: 10000,
     followingNumber: 100,
   );
+
+  late Future<UserResponse> myUserInfo;
 
   late List<PostResponse> posts = List.generate(
     10,
@@ -53,6 +57,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       posts.insert(0, globalMockNewPost!);
       globalMockNewPost = null;
     }
+    final authRepo = ref.read(authRepositoryProvider);
+    this.myUserInfo = authRepo.getMyProfile();
+    print(myUserInfo);
   }
 
   void onGoingBack() {
@@ -116,188 +123,219 @@ class _ProfileScreenState extends State<ProfileScreen> {
             IconButton(onPressed: onLogoutButton, icon: Icon(Icons.logout)),
         ],
       ),
-      body: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  if (user.profileImage != null)
-                    SizedBox(
-                      width: 80,
-                      height: 80,
-                      child: ClipRRect(
-                        borderRadius: BorderRadiusGeometry.all(
-                          Radius.circular(100),
-                        ),
-                        child: Image.network(
-                          user.profileImage!,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Icon(Icons.broken_image, size: 64);
-                          },
-                        ),
-                      ),
-                    ),
-                  if (user.profileImage != null) SizedBox(height: 8),
-                  Text(
-                    user.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 20),
-                  ),
-                  Text(
-                    "@${user.login}",
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Theme.of(context).colorScheme.outline,
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  IntrinsicHeight(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Column(
-                          children: [
-                            Text(
-                              "Seguindo  ",
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.outline,
-                              ),
+      body: FutureBuilder(
+        future: myUserInfo,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (!snapshot.hasData) {
+            //Mostrar algo pra dizer que nao tem dados
+            return const Center(child: Text("Perfil não encontrado."));
+          }
+
+          if (snapshot.hasError) {
+            return Center(child: Text("Erro: ${snapshot.error}"));
+          }
+
+          final user = snapshot.data!;
+
+          return CustomScrollView(
+            slivers: [
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      if (user.profileImage != null)
+                        SizedBox(
+                          width: 80,
+                          height: 80,
+                          child: ClipRRect(
+                            borderRadius: BorderRadiusGeometry.all(
+                              Radius.circular(100),
                             ),
-                            Text(
-                              (user.followingNumber ?? "?").toString(),
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.primary,
-                                fontWeight: FontWeight(700),
-                              ),
+                            child: Image.network(
+                              user.profileImage!,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return const Icon(Icons.broken_image, size: 64);
+                              },
                             ),
-                          ],
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16),
-                          child: VerticalDivider(
-                            thickness: 1,
-                            color: Colors.grey,
                           ),
                         ),
-                        Column(
+                      if (user.profileImage != null) SizedBox(height: 8),
+                      Text(
+                        user.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontSize: 20),
+                      ),
+                      Text(
+                        "@${user.login}",
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Theme.of(context).colorScheme.outline,
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                      IntrinsicHeight(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Text(
-                              "Seguidores",
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.outline,
-                              ),
-                            ),
-                            Text(
-                              (user.followersNumber ?? "?").toString(),
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.primary,
-                                fontWeight: FontWeight(700),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (widget.login != null) SizedBox(height: 16),
-                  if (widget.login != null)
-                    FilledButton(
-                      onPressed: () {
-                        setState(() {
-                          following = !following;
-                        });
-                      },
-                      style: ButtonStyle(
-                        backgroundColor: WidgetStatePropertyAll(
-                          following
-                              ? Theme.of(context).colorScheme.errorContainer
-                              : Theme.of(context).colorScheme.onSurface,
-                        ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: Text(following ? "Deixar de seguir" : "Seguir"),
-                      ),
-                    ),
-                  SizedBox(height: 16),
-                  Text(
-                    "Posts",
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight(700),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            sliver: SliverList.separated(
-              itemBuilder: (context, index) => Post(
-                postResponse: posts[index],
-                maxLines: 5,
-                onDelete: widget.login == null
-                    ? () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            title: const Text("Excluir post?"),
-                            content: const Text(
-                              "Tem certeza que deseja excluir este post?",
-                            ),
-                            actions: [
-                              TextButton(
-                                style: const ButtonStyle(
-                                  overlayColor: WidgetStatePropertyAll(
-                                    Colors.transparent,
-                                  ),
-                                ),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                                child: Text(
-                                  "Cancelar",
+                            Column(
+                              children: [
+                                Text(
+                                  "Seguindo  ",
                                   style: TextStyle(
                                     color: Theme.of(
                                       context,
                                     ).colorScheme.outline,
                                   ),
                                 ),
-                              ),
-                              FilledButton(
-                                style: ButtonStyle(
-                                  backgroundColor: WidgetStatePropertyAll(
-                                    Theme.of(context).colorScheme.error,
+                                Text(
+                                  (user.followingNumber ?? "?")
+                                      .toString(),
+                                  style: TextStyle(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
+                                    fontWeight: FontWeight(700),
                                   ),
                                 ),
-                                onPressed: () {
-                                  setState(() {
-                                    posts.removeAt(index);
-                                  });
-                                  Navigator.of(context).pop();
-                                },
-                                child: const Text("Excluir"),
+                              ],
+                            ),
+                            const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 16),
+                              child: VerticalDivider(
+                                thickness: 1,
+                                color: Colors.grey,
                               ),
-                            ],
+                            ),
+                            Column(
+                              children: [
+                                Text(
+                                  "Seguidores",
+                                  style: TextStyle(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.outline,
+                                  ),
+                                ),
+                                Text(
+                                  (user.followersNumber ?? "?").toString(),
+                                  style: TextStyle(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
+                                    fontWeight: FontWeight(700),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (widget.login != null) SizedBox(height: 16),
+                      if (widget.login != null)
+                        FilledButton(
+                          onPressed: () {
+                            setState(() {
+                              following = !following;
+                            });
+                          },
+                          style: ButtonStyle(
+                            backgroundColor: WidgetStatePropertyAll(
+                              following
+                                  ? Theme.of(context).colorScheme.errorContainer
+                                  : Theme.of(context).colorScheme.onSurface,
+                            ),
                           ),
-                        );
-                      }
-                    : null,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Text(
+                              following ? "Deixar de seguir" : "Seguir",
+                            ),
+                          ),
+                        ),
+                      SizedBox(height: 16),
+                      Text(
+                        "Posts",
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight(700),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              separatorBuilder: (context, index) => Padding(
-                padding: EdgeInsetsGeometry.only(bottom: 8),
-                child: Divider(),
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                sliver: SliverList.separated(
+                  itemBuilder: (context, index) => Post(
+                    postResponse: posts[index],
+                    maxLines: 5,
+                    onDelete: widget.login == null
+                        ? () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text("Excluir post?"),
+                                content: const Text(
+                                  "Tem certeza que deseja excluir este post?",
+                                ),
+                                actions: [
+                                  TextButton(
+                                    style: const ButtonStyle(
+                                      overlayColor: WidgetStatePropertyAll(
+                                        Colors.transparent,
+                                      ),
+                                    ),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text(
+                                      "Cancelar",
+                                      style: TextStyle(
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.outline,
+                                      ),
+                                    ),
+                                  ),
+                                  FilledButton(
+                                    style: ButtonStyle(
+                                      backgroundColor: WidgetStatePropertyAll(
+                                        Theme.of(context).colorScheme.error,
+                                      ),
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        posts.removeAt(index);
+                                      });
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text("Excluir"),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }
+                        : null,
+                  ),
+                  separatorBuilder: (context, index) => Padding(
+                    padding: EdgeInsetsGeometry.only(bottom: 8),
+                    child: Divider(),
+                  ),
+                  itemCount: posts.length,
+                ),
               ),
-              itemCount: posts.length,
-            ),
-          ),
-        ],
+            ],
+          );
+        },
       ),
     );
   }
