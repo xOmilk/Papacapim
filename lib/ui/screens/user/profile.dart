@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_project/models/responses/post_response.dart';
 import 'package:flutter_project/models/responses/user_response.dart';
+import 'package:flutter_project/notifiers/prefs_provider.dart';
 import 'package:flutter_project/repositories/auth_repository.dart';
+import 'package:flutter_project/repositories/post_repository.dart';
 import 'package:flutter_project/ui/components/post.dart';
+import 'package:flutter_project/ui/components/show_message.dart';
 import 'package:flutter_project/ui/screens/posts/create_post_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -27,6 +30,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   );
 
   late Future<UserResponse> myUserInfo;
+  late Future<List<PostResponse>> myUserPosts;
 
   late List<PostResponse> posts = List.generate(
     10,
@@ -57,9 +61,39 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       posts.insert(0, globalMockNewPost!);
       globalMockNewPost = null;
     }
+
+    final prefs = ref.read(prefsProvider);
+
+    final token = prefs.getToken();
+    bool hasToken = token != null && token.isNotEmpty;
+
+    if (!hasToken) {
+      myUserInfo = Future.error("Não logado");
+      myUserInfo.catchError((_) => const UserResponse(login: "", name: ""));
+
+      myUserPosts = Future.error("Não logado");
+      myUserPosts.catchError((_) => <PostResponse>[]);
+
+      //Coloca o elemento pra ser carregado depois de terminar de desnhar
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          showMessage(context, "Você não está logado", isError: true);
+          context.go("/auth");
+        }
+      });
+
+      return;
+    }
+
     final authRepo = ref.read(authRepositoryProvider);
-    this.myUserInfo = authRepo.getMyProfile();
-    print(myUserInfo);
+    final postRepo = ref.read(postRepositoryProvider);
+
+    myUserInfo = authRepo.getMyProfile();
+
+    //Posts pelo meu login
+    myUserPosts = myUserInfo.then((user) {
+      return postRepo.getPosts(user.login);
+    });
   }
 
   void onGoingBack() {
@@ -123,20 +157,19 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             IconButton(onPressed: onLogoutButton, icon: Icon(Icons.logout)),
         ],
       ),
-      body: FutureBuilder(
+      body: FutureBuilder<UserResponse>(
         future: myUserInfo,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (!snapshot.hasData) {
-            //Mostrar algo pra dizer que nao tem dados
-            return const Center(child: Text("Perfil não encontrado."));
-          }
-
           if (snapshot.hasError) {
             return Center(child: Text("Erro: ${snapshot.error}"));
+          }
+
+          if (!snapshot.hasData) {
+            return const Center(child: Text("Perfil não encontrado."));
           }
 
           final user = snapshot.data!;
@@ -196,8 +229,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   ),
                                 ),
                                 Text(
-                                  (user.followingNumber ?? "?")
-                                      .toString(),
+                                  (user.followingNumber ?? "?").toString(),
                                   style: TextStyle(
                                     color: Theme.of(
                                       context,
@@ -272,66 +304,100 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   ),
                 ),
               ),
-              SliverPadding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                sliver: SliverList.separated(
-                  itemBuilder: (context, index) => Post(
-                    postResponse: posts[index],
-                    maxLines: 5,
-                    onDelete: widget.login == null
-                        ? () {
-                            showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: const Text("Excluir post?"),
-                                content: const Text(
-                                  "Tem certeza que deseja excluir este post?",
-                                ),
-                                actions: [
-                                  TextButton(
-                                    style: const ButtonStyle(
-                                      overlayColor: WidgetStatePropertyAll(
-                                        Colors.transparent,
-                                      ),
+              FutureBuilder(
+                future: myUserPosts,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return SliverToBoxAdapter(
+                      child: const Center(child: CircularProgressIndicator()),
+                    );
+                  }
+
+                  if (snapshot.hasError) {
+                    return SliverToBoxAdapter(
+                      child: Center(child: Text("Erro: ${snapshot.error}")),
+                    );
+                  }
+
+                  if (!snapshot.hasData) {
+                    return SliverToBoxAdapter(
+                      child: const Center(child: SizedBox.shrink()),
+                    );
+                  }
+
+                  final posts = snapshot.data!;
+
+                  if (posts.isEmpty) {
+                    return SliverToBoxAdapter(
+                      child: Center(child: Text("Nenhum post encontrado")),
+                    );
+                  }
+
+                  return SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                    sliver: SliverList.separated(
+                      itemBuilder: (context, index) => Post(
+                        postResponse: posts[index],
+                        maxLines: 5,
+                        onDelete: widget.login == null
+                            ? () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text("Excluir post?"),
+                                    content: const Text(
+                                      "Tem certeza que deseja excluir este post?",
                                     ),
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: Text(
-                                      "Cancelar",
-                                      style: TextStyle(
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.outline,
+                                    actions: [
+                                      TextButton(
+                                        style: const ButtonStyle(
+                                          overlayColor: WidgetStatePropertyAll(
+                                            Colors.transparent,
+                                          ),
+                                        ),
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: Text(
+                                          "Cancelar",
+                                          style: TextStyle(
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.outline,
+                                          ),
+                                        ),
                                       ),
-                                    ),
+                                      FilledButton(
+                                        style: ButtonStyle(
+                                          backgroundColor:
+                                              WidgetStatePropertyAll(
+                                                Theme.of(
+                                                  context,
+                                                ).colorScheme.error,
+                                              ),
+                                        ),
+                                        onPressed: () {
+                                          setState(() {
+                                            posts.removeAt(index);
+                                          });
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: const Text("Excluir"),
+                                      ),
+                                    ],
                                   ),
-                                  FilledButton(
-                                    style: ButtonStyle(
-                                      backgroundColor: WidgetStatePropertyAll(
-                                        Theme.of(context).colorScheme.error,
-                                      ),
-                                    ),
-                                    onPressed: () {
-                                      setState(() {
-                                        posts.removeAt(index);
-                                      });
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: const Text("Excluir"),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }
-                        : null,
-                  ),
-                  separatorBuilder: (context, index) => Padding(
-                    padding: EdgeInsetsGeometry.only(bottom: 8),
-                    child: Divider(),
-                  ),
-                  itemCount: posts.length,
-                ),
+                                );
+                              }
+                            : null,
+                      ),
+                      separatorBuilder: (context, index) => Padding(
+                        padding: EdgeInsetsGeometry.only(bottom: 8),
+                        child: Divider(),
+                      ),
+                      itemCount: posts.length,
+                    ),
+                  );
+                },
               ),
             ],
           );
