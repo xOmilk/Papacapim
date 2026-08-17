@@ -26,11 +26,11 @@ class PostResponse {
       id: json["id"],
       postId: json["post_id"],
       message: json["message"],
-      createdAt: json["created_at"],
+      createdAt: DateTime.parse(json["created_at"]),
       likesNumber: json["likes_number"],
       repliesNumber: json["replies_number"],
-      youLiked: json["replies_number"],
-      user: UserResponse.fromJson(json["user"]),
+      youLiked: json["you_liked"] ?? false,
+      user: json["user"] != null ? UserResponse.fromJson(json["user"]) : null,
     );
   }
 
@@ -39,7 +39,7 @@ class PostResponse {
       "id": id,
       "post_id": postId,
       "message": message,
-      "created_at": createdAt,
+      "created_at": createdAt.toIso8601String(),
       "likes_number": likesNumber,
       "replies_number": repliesNumber,
       "you_liked": youLiked,
