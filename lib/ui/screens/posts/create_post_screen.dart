@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_project/models/responses/post_response.dart';
-import 'package:flutter_project/models/responses/user_response.dart';
+import 'package:flutter_project/models/requests/create_post_request.dart';
+import 'package:flutter_project/repositories/post_repository.dart';
+import 'package:flutter_project/ui/components/show_message.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-PostResponse? globalMockNewPost;
-
-class CreatePostScreen extends StatefulWidget {
+class CreatePostScreen extends ConsumerStatefulWidget {
   const CreatePostScreen({super.key});
 
   @override
-  State<CreatePostScreen> createState() => _CreatePostScreenState();
+  ConsumerState<CreatePostScreen> createState() => _CreatePostScreenState();
 }
 
-class _CreatePostScreenState extends State<CreatePostScreen> {
+class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
   final TextEditingController _messageController = TextEditingController();
 
   @override
@@ -25,25 +25,29 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     context.pop();
   }
 
-  void onPublish() {
+  void onPublish() async {
     final message = _messageController.text;
-    if (message.isNotEmpty) {
-      final mockPost = PostResponse(
-        id: DateTime.now().millisecondsSinceEpoch,
-        message: message,
-        createdAt: DateTime.now(),
-        likesNumber: 0,
-        repliesNumber: 0,
-        youLiked: false,
-        user: const UserResponse(
-          login: "me",
-          name: "Eu Mesmo",
-          profileImage:
-              "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQiQYULA2iPnmbaEcFvMp2JHp-8efHVSDnCDCHnPIK9UQ&s=10",
-        ),
-      );
-      globalMockNewPost = mockPost;
-      context.replace("/my-profile");
+    if (message.trim().isNotEmpty) {
+      final postRepo = ref.read(postRepositoryProvider);
+
+      try {
+        final postRequest = CreatePostRequest(message: message);
+
+        final postResponse = await postRepo.createNewPost(postRequest);
+        print(postResponse.toString());
+        if (mounted) {
+          showMessage(context, "Post Criado com sucesso");
+          context.go("/profile");
+        }
+      } catch (e) {
+        if (mounted) {
+          showMessage(
+            context,
+            "Erro ao tentar criar o post, tente novamente.",
+            isError: true,
+          );
+        }
+      }
     }
   }
 

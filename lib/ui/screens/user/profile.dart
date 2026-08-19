@@ -6,7 +6,6 @@ import 'package:flutter_project/repositories/auth_repository.dart';
 import 'package:flutter_project/repositories/post_repository.dart';
 import 'package:flutter_project/ui/components/post.dart';
 import 'package:flutter_project/ui/components/show_message.dart';
-import 'package:flutter_project/ui/screens/posts/create_post_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -32,35 +31,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   late Future<UserResponse> myUserInfo;
   late Future<List<PostResponse>> myUserPosts;
 
-  late List<PostResponse> posts = List.generate(
-    10,
-    (index) => PostResponse(
-      id: index + 1,
-      postId: null,
-      message:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ante lectus, tempus id viverra vitae, porttitor et tortor. Integer et lobortis quam. Ut dignissim sodales molestie. Pellentesque vestibulum odio at ipsum vestibulum accumsan. Suspendisse posuere dignissim libero, sodales efficitur justo sagittis ultrices. Cras in tempor magna, quis accumsan lectus. Vestibulum ultricies est ac justo aliquam vulputate. Suspendisse molestie lacinia eros ut finibus. Suspendisse potenti. Duis iaculis, erat ac iaculis laoreet, ipsum massa porttitor neque, non imperdiet nibh diam vel justo. Fusce erat elit, venenatis et ultrices nec, dapibus nec risus. Fusce aliquam mattis mauris sit amet dignissim. Nunc tempus aliquet ipsum ac interdum. Suspendisse potenti.",
-      createdAt: DateTime.now(),
-      likesNumber: 10,
-      repliesNumber: 1,
-      youLiked: false,
-      user: const UserResponse(
-        login: "luan",
-        name: "Luan Coelho",
-        profileImage:
-            "https://upload.wikimedia.org/wikipedia/commons/4/49/Panthera_tigris_tigris.jpg",
-      ),
-    ),
-  );
-
   bool following = false;
 
   @override
   void initState() {
     super.initState();
-    if (globalMockNewPost != null) {
-      posts.insert(0, globalMockNewPost!);
-      globalMockNewPost = null;
-    }
 
     final prefs = ref.read(prefsProvider);
 
