@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_project/models/requests/register_request.dart';
+import 'package:flutter_project/repositories/auth_repository.dart';
 import 'package:flutter_project/ui/components/show_message.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -17,12 +19,27 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _passwordController = TextEditingController();
   final _confirmpasswordController = TextEditingController();
 
-  void onSubmit() {
+  void onSubmit() async {
     try {
-      DefaultTabController.of(context).animateTo(0);
-      showMessage(context, "Usuario criado");
+      final authRepo = ref.read(authRepositoryProvider);
+
+      final registerRequestData = RegisterRequest(
+        login: _usernameController.text,
+        name: _fullnameController.text,
+        password: _passwordController.text,
+        passwordConfirmation: _confirmpasswordController.text,
+      );
+
+      await authRepo.register(registerRequestData);
+
+      if (mounted) {
+        DefaultTabController.of(context).animateTo(0);
+        showMessage(context, "Usuário criado, faça login na plataforma");
+      }
     } catch (e) {
-      showMessage(context, "Erro ao tentar criar usuario", isError: true);
+      if (mounted) {
+        showMessage(context, "Erro ao tentar criar usuario", isError: true);
+      }
     }
   }
 

@@ -24,12 +24,10 @@ class RegisterRequest {
 
   Map<String, dynamic> toJson() {
     return {
-      "user": {
-        "login": login,
-        "name": name,
-        "password": password,
-        "passwordConfirmation": passwordConfirmation,
-      },
+      "login": login,
+      "name": name,
+      "password": password,
+      "password_confirmation": passwordConfirmation,
     };
   }
 }

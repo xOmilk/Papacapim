@@ -16,6 +16,11 @@ class PostRepository {
       return (postsResponse.data as List)
           .map((post) => PostResponse.fromJson(post))
           .toList();
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404) {
+        return [];
+      }
+      rethrow;
     } catch (e) {
       rethrow;
     }
