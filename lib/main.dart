@@ -17,6 +17,7 @@ void main() async {
 }
 
 final GoRouter _goRouter = GoRouter(
+  debugLogDiagnostics: true,
   routes: [
     GoRoute(path: "/", builder: (context, state) => const HomeScreen()),
     GoRoute(path: "/auth", builder: (context, state) => const AuthScreen()),

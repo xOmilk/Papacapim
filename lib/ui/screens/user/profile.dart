@@ -351,11 +351,36 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                 ).colorScheme.error,
                                               ),
                                         ),
-                                        onPressed: () {
-                                          setState(() {
-                                            posts.removeAt(index);
-                                          });
-                                          Navigator.of(context).pop();
+                                        onPressed: () async {
+                                          final postRepo = ref.read(
+                                            postRepositoryProvider,
+                                          );
+                                          final postId = posts[index].id;
+
+                                          try {
+                                            await postRepo.deletePost(postId);
+
+                                            setState(() {
+                                              posts.removeAt(index);
+                                            });
+
+                                            if (context.mounted) {
+                                              Navigator.of(context).pop();
+                                              showMessage(
+                                                context,
+                                                "Post excluído com sucesso",
+                                              );
+                                            }
+                                          } catch (e) {
+                                            if (context.mounted) {
+                                              Navigator.of(context).pop();
+                                              showMessage(
+                                                context,
+                                                "Erro ao tentar excluir post",
+                                                isError: true,
+                                              );
+                                            }
+                                          }
                                         },
                                         child: const Text("Excluir"),
                                       ),

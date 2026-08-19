@@ -35,6 +35,15 @@ class PostRepository {
       rethrow;
     }
   }
+
+  Future<String> deletePost(int postId) async {
+    try {
+      await _dio.delete("/posts/$postId");
+      return "Sua publicação foi excluida.";
+    } catch (e) {
+      rethrow;
+    }
+  }
 }
 
 final postRepositoryProvider = Provider<PostRepository>((ref) {
