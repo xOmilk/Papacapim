@@ -37,7 +37,8 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
         print(postResponse.toString());
         if (mounted) {
           showMessage(context, "Post Criado com sucesso");
-          context.go("/my-profile");
+          _messageController.clear();
+          context.push("/my-profile");
         }
       } catch (e) {
         if (mounted) {
