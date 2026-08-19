@@ -21,6 +21,6 @@ class PostRepository {
 }
 
 final postRepositoryProvider = Provider<PostRepository>((ref) {
-  final dio = ref.read(dioProvider);
+  final dio = ref.watch(dioProvider);
   return PostRepository(dio: dio);
 });
