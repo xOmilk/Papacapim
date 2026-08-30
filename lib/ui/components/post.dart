@@ -7,7 +7,12 @@ class Post extends StatefulWidget {
   final int? maxLines;
   final VoidCallback? onDelete;
 
-  const Post({required this.postResponse, this.maxLines, this.onDelete, super.key});
+  const Post({
+    required this.postResponse,
+    this.maxLines,
+    this.onDelete,
+    super.key,
+  });
 
   @override
   State<Post> createState() => _PostState();
@@ -15,7 +20,7 @@ class Post extends StatefulWidget {
 
 class _PostState extends State<Post> {
   void onProfileTap() {
-    context.push("/profile/${widget.postResponse.user?.login}");
+    context.push("/profile", extra: widget.postResponse.user?.login);
   }
 
   void onLikeTap() {

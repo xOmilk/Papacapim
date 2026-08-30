@@ -1,63 +1,34 @@
+import 'package:flutter_project/repositories/post_repository.dart';
+import 'package:flutter_project/utils/posts_utils.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_project/models/responses/post_response.dart';
-import 'package:flutter_project/models/responses/user_response.dart';
 import 'package:flutter_project/ui/components/post.dart';
 import 'package:flutter_project/ui/components/reply_input.dart';
 import 'package:go_router/go_router.dart';
 
-class SeePost extends StatefulWidget {
-  final int id;
+class SeePost extends ConsumerStatefulWidget {
+  final PostResponse post;
 
-  const SeePost({required this.id, super.key});
+  const SeePost({required this.post, super.key});
 
   @override
-  State<SeePost> createState() => _SeePostState();
+  ConsumerState<SeePost> createState() => _SeePostState();
 }
 
-class _SeePostState extends State<SeePost> {
-  PostResponse postResponse = PostResponse(
-    id: 1,
-    postId: null,
-    message:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ante lectus, tempus id viverra vitae, porttitor et tortor. Integer et lobortis quam. Ut dignissim sodales molestie. Pellentesque vestibulum odio at ipsum vestibulum accumsan. Suspendisse posuere dignissim libero, sodales efficitur justo sagittis ultrices. Cras in tempor magna, quis accumsan lectus. Vestibulum ultricies est ac justo aliquam vulputate. Suspendisse molestie lacinia eros ut finibus. Suspendisse potenti. Duis iaculis, erat ac iaculis laoreet, ipsum massa porttitor neque, non imperdiet nibh diam vel justo. Fusce erat elit, venenatis et ultrices nec, dapibus nec risus. Fusce aliquam mattis mauris sit amet dignissim. Nunc tempus aliquet ipsum ac interdum. Suspendisse potenti.",
-    createdAt: DateTime.now(),
-    likesNumber: 10,
-    repliesNumber: 1,
-    youLiked: false,
-    user: UserResponse(
-      login: "luan",
-      name: "Luan Coelho",
-      profileImage:
-          "https://upload.wikimedia.org/wikipedia/commons/4/49/Panthera_tigris_tigris.jpg",
-    ),
-  );
+class _SeePostState extends ConsumerState<SeePost> {
+  late Future<List<PostResponse>> replies;
 
-  List<PostResponse> replies = List<PostResponse>.filled(
-    10,
-    PostResponse(
-      id: 2,
-      postId: 1,
-      message:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ante lectus, tempus id viverra vitae, porttitor et tortor. Integer et lobortis quam. Ut dignissim sodales molestie. Pellentesque vestibulum odio at ipsum vestibulum accumsan. Suspendisse posuere dignissim libero, sodales efficitur justo sagittis ultrices. Cras in tempor magna, quis accumsan lectus. Vestibulum ultricies est ac justo aliquam vulputate. Suspendisse molestie lacinia eros ut finibus. Suspendisse potenti. Duis iaculis, erat ac iaculis laoreet, ipsum massa porttitor neque, non imperdiet nibh diam vel justo. Fusce erat elit, venenatis et ultrices nec, dapibus nec risus. Fusce aliquam mattis mauris sit amet dignissim. Nunc tempus aliquet ipsum ac interdum. Suspendisse potenti.",
-      createdAt: DateTime.now(),
-      likesNumber: 10,
-      repliesNumber: 1,
-      youLiked: false,
-      user: UserResponse(
-        login: "luan",
-        name: "Luan Coelho",
-        profileImage:
-            "https://upload.wikimedia.org/wikipedia/commons/4/49/Panthera_tigris_tigris.jpg",
-      ),
-    ),
-  );
+  @override
+  void initState() {
+    super.initState();
+
+    final postRepo = ref.read(postRepositoryProvider);
+    replies = postRepo.getReplies(widget.post.id);
+  }
 
   void onGoingBack() {
     context.pop();
-  }
-
-  void onPostTap(PostResponse postResponse) {
-    context.push("/post/${postResponse.id}");
   }
 
   @override
@@ -76,7 +47,7 @@ class _SeePostState extends State<SeePost> {
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
-                  Post(postResponse: postResponse),
+                  Post(postResponse: widget.post),
                   SizedBox(height: 16),
                   Text(
                     "Replies",
@@ -90,29 +61,60 @@ class _SeePostState extends State<SeePost> {
               ),
             ),
           ),
-          SliverPadding(
-            padding: EdgeInsetsGeometry.fromLTRB(0, 0, 16, 16),
-            sliver: SliverList.builder(
-              itemCount: replies.length,
-              itemBuilder: (context, index) => IntrinsicHeight(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Container(
-                      width: 2,
-                      color: Theme.of(context).colorScheme.outline,
-                      margin: const EdgeInsets.symmetric(horizontal: 16),
+          FutureBuilder<List<PostResponse>>(
+            future: replies,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const SliverToBoxAdapter(
+                  child: Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(16),
+                      child: CircularProgressIndicator(),
                     ),
-                    Expanded(
-                      child: InkWell(
-                        onTap: () => onPostTap(replies[index]),
-                        child: Post(postResponse: replies[index], maxLines: 5),
-                      ),
+                  ),
+                );
+              }
+
+              if (snapshot.hasError) {
+                return SliverToBoxAdapter(
+                  child: Center(child: Text("Erro: ${snapshot.error}")),
+                );
+              }
+
+              if (!snapshot.hasData) {
+                return const SliverToBoxAdapter(
+                  child: Center(child: Text("Perfil não encontrado.")),
+                );
+              }
+
+              final data = snapshot.data!;
+
+              return SliverPadding(
+                padding: const EdgeInsets.fromLTRB(0, 0, 16, 16),
+                sliver: SliverList.builder(
+                  itemCount: data.length,
+                  itemBuilder: (context, index) => IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Container(
+                          width: 2,
+                          color: Theme.of(context).colorScheme.outline,
+                          margin: const EdgeInsets.symmetric(horizontal: 16),
+                        ),
+                        Expanded(
+                          child: InkWell(
+                            onTap: () =>
+                                PostsUtils.onPostTap(context, data[index]),
+                            child: Post(postResponse: data[index], maxLines: 5),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
+              );
+            },
           ),
         ],
       ),

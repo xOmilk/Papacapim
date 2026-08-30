@@ -4,6 +4,7 @@ import 'package:flutter_project/models/responses/user_response.dart';
 import 'package:flutter_project/notifiers/prefs_provider.dart';
 import 'package:flutter_project/repositories/auth_repository.dart';
 import 'package:flutter_project/repositories/post_repository.dart';
+import 'package:flutter_project/repositories/user_repository.dart';
 import 'package:flutter_project/ui/components/post.dart';
 import 'package:flutter_project/ui/components/show_message.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,15 +20,6 @@ class ProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
-  final UserResponse user = const UserResponse(
-    login: "luan",
-    name: "Luan Coelho",
-    profileImage:
-        "https://upload.wikimedia.org/wikipedia/commons/4/49/Panthera_tigris_tigris.jpg",
-    followersNumber: 10000,
-    followingNumber: 100,
-  );
-
   late Future<UserResponse> myUserInfo;
   late Future<List<PostResponse>> myUserPosts;
 
@@ -37,37 +29,19 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   void initState() {
     super.initState();
 
-    final prefs = ref.read(prefsProvider);
-
-    final token = prefs.getToken();
-    bool hasToken = token != null && token.isNotEmpty;
-
-    if (!hasToken) {
-      myUserInfo = Future.error("Não logado");
-      myUserInfo.catchError((_) => const UserResponse(login: "", name: ""));
-
-      myUserPosts = Future.error("Não logado");
-      myUserPosts.catchError((_) => <PostResponse>[]);
-
-      //Coloca o elemento pra ser carregado depois de terminar de desnhar
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          showMessage(context, "Você não está logado", isError: true);
-          context.go("/auth");
-        }
-      });
-
-      return;
-    }
-
     final authRepo = ref.read(authRepositoryProvider);
+    final usersRepo = ref.read(usersRepositoryProvider);
     final postRepo = ref.read(postRepositoryProvider);
 
-    myUserInfo = authRepo.getMyProfile();
+    if (widget.login != null) {
+      myUserInfo = usersRepo.getUser(widget.login!);
+    } else {
+      myUserInfo = authRepo.getMyProfile();
+    }
 
     //Posts pelo meu login
     myUserPosts = myUserInfo.then((user) {
-      return postRepo.getPosts(user.login);
+      return postRepo.getUserPosts(user.login);
     });
   }
 

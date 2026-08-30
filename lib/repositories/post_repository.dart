@@ -10,22 +10,6 @@ class PostRepository {
 
   PostRepository({required Dio dio}) : _dio = dio;
 
-  Future<List<PostResponse>> getPosts(String login) async {
-    try {
-      final postsResponse = await _dio.get("/users/$login/posts");
-      return (postsResponse.data as List)
-          .map((post) => PostResponse.fromJson(post))
-          .toList();
-    } on DioException catch (e) {
-      if (e.response?.statusCode == 404) {
-        return [];
-      }
-      rethrow;
-    } catch (e) {
-      rethrow;
-    }
-  }
-
   Future<CreatePostResponse> createNewPost(
     CreatePostRequest postRequest,
   ) async {
@@ -36,6 +20,58 @@ class PostRepository {
       );
 
       return CreatePostResponse.fromJson(createPostResponse.data);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<PostResponse>> getPosts({
+    int? page,
+    int? feed,
+    String? search,
+  }) async {
+    try {
+      final postsResponse = await _dio.get("/posts");
+      return (postsResponse.data as List)
+          .map((post) => PostResponse.fromJson(post))
+          .toList();
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404) {
+        return List.empty();
+      }
+      rethrow;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<PostResponse>> getUserPosts(String login) async {
+    try {
+      final postsResponse = await _dio.get("/users/$login/posts");
+      return (postsResponse.data as List)
+          .map((post) => PostResponse.fromJson(post))
+          .toList();
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404) {
+        return List.empty();
+      }
+      rethrow;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<PostResponse>> getReplies(int postId) async {
+    try {
+      final repliesResponse = await _dio.get("/posts/$postId/replies");
+      return (repliesResponse.data as List)
+          .map((post) => PostResponse.fromJson(post))
+          .toList();
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404) {
+        return List.empty();
+      }
+      rethrow;
     } catch (e) {
       rethrow;
     }

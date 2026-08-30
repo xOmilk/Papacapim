@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_project/models/responses/post_response.dart';
 import 'package:flutter_project/services/prefs_service.dart';
 import 'package:flutter_project/ui/screens/auth/auth_screen.dart';
 import 'package:flutter_project/ui/screens/home/home_screen.dart';
@@ -30,22 +31,17 @@ final GoRouter _goRouter = GoRouter(
       builder: (context, state) => const EditProfile(),
     ),
     GoRoute(
-      path: "/profile/:login",
+      path: "/profile",
       builder: (context, state) {
-        var login = state.pathParameters["login"];
+        var login = state.extra as String;
         return ProfileScreen(login: login);
       },
     ),
     GoRoute(
-      path: "/post/:id",
+      path: "/post",
       builder: (context, state) {
-        var param = state.pathParameters["id"];
-        if (param == null) return HomeScreen();
-
-        var id = int.tryParse(param);
-        if (id == null) return HomeScreen();
-
-        return SeePost(id: id);
+        final post = state.extra as PostResponse;
+        return SeePost(post: post);
       },
     ),
     GoRoute(

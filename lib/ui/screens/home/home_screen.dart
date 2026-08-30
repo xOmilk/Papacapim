@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_project/services/prefs_service.dart';
+import 'package:flutter_project/ui/components/show_message.dart';
 import 'package:flutter_project/ui/screens/home/feed_screen.dart';
 import 'package:flutter_project/ui/screens/home/search_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,11 +21,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   void initState() {
     super.initState();
 
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   if (prefsService.getToken() == null) {
-    //     context.replace("/auth");
-    //   }
-    // });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (prefsService.getToken() == null && mounted) {
+        showMessage(context, "Você não está logado", isError: true);
+        context.replace("/auth");
+      }
+    });
   }
 
   void onAppBarUserPress() {

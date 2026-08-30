@@ -15,11 +15,8 @@ class AuthRepository {
   Future<LoginResponse> login(LoginRequest request) async {
     try {
       final response = await _dio.post("/sessions", data: request.toJson());
-
-      //print(LoginResponse.fromJson(response.data).toString());
       return LoginResponse.fromJson(response.data);
     } catch (e) {
-      //print("Erro ao fazer login");
       rethrow;
     }
   }
@@ -32,7 +29,6 @@ class AuthRepository {
       );
       return RegisterResponse.fromJson(responseRegister.data);
     } catch (e) {
-      //print("Erro ao se registrar");
       rethrow;
     }
   }
@@ -40,8 +36,15 @@ class AuthRepository {
   Future<UserResponse> getMyProfile() async {
     try {
       final myInfo = await _dio.get("/users/me");
-      //print(myInfo.data.toString());
       return UserResponse.fromJson(myInfo.data);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> logout() async {
+    try {
+      // await _dio.delete("");
     } catch (e) {
       rethrow;
     }
