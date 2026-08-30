@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_project/models/responses/post_response.dart';
 import 'package:flutter_project/models/responses/user_response.dart';
-import 'package:flutter_project/notifiers/prefs_provider.dart';
 import 'package:flutter_project/repositories/auth_repository.dart';
 import 'package:flutter_project/repositories/post_repository.dart';
 import 'package:flutter_project/repositories/user_repository.dart';
@@ -39,7 +38,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       myUserInfo = authRepo.getMyProfile();
     }
 
-    //Posts pelo meu login
     myUserPosts = myUserInfo.then((user) {
       return postRepo.getUserPosts(user.login);
     });

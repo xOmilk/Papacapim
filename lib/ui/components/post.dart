@@ -1,8 +1,11 @@
+import 'package:flutter_project/repositories/like_repository.dart';
+import 'package:flutter_project/ui/components/show_message.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_project/models/responses/post_response.dart';
 import 'package:go_router/go_router.dart';
 
-class Post extends StatefulWidget {
+class Post extends ConsumerStatefulWidget {
   final PostResponse postResponse;
   final int? maxLines;
   final VoidCallback? onDelete;
@@ -15,16 +18,46 @@ class Post extends StatefulWidget {
   });
 
   @override
-  State<Post> createState() => _PostState();
+  ConsumerState<Post> createState() => _PostState();
 }
 
-class _PostState extends State<Post> {
+class _PostState extends ConsumerState<Post> {
+  bool liked = false;
+  int likes = 0;
+
   void onProfileTap() {
     context.push("/profile", extra: widget.postResponse.user?.login);
   }
 
-  void onLikeTap() {
-    print("Like");
+  void onLikeTap() async {
+    final likeRepo = ref.read(likeRepositoryProvider);
+
+    try {
+      if (!liked) {
+        likeRepo.likePost(widget.postResponse.id).then((_) {
+          setState(() {
+            liked = true;
+            likes++;
+          });
+        });
+      } else {
+        likeRepo.dislikePost(widget.postResponse.id).then((_) {
+          setState(() {
+            liked = false;
+            likes--;
+          });
+        });
+      }
+    } catch (e) {
+      showMessage(context, "Erro ao alterar like", isError: true);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    liked = widget.postResponse.youLiked;
+    likes = widget.postResponse.likesNumber;
   }
 
   @override
@@ -92,8 +125,16 @@ class _PostState extends State<Post> {
             ),
             Row(
               children: [
-                IconButton(onPressed: onLikeTap, icon: Icon(Icons.thumb_up)),
-                Text(widget.postResponse.likesNumber.toString()),
+                IconButton(
+                  onPressed: onLikeTap,
+                  icon: Icon(
+                    Icons.thumb_up,
+                    color: liked
+                        ? Theme.of(context).colorScheme.primary
+                        : Colors.white,
+                  ),
+                ),
+                Text(likes.toString()),
               ],
             ),
           ],
