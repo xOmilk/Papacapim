@@ -10,7 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class AuthRepository {
   final Dio _dio;
 
-  AuthRepository({required Dio dio}) : _dio = dio;
+  AuthRepository({required this._dio});
 
   Future<LoginResponse> login(LoginRequest request) async {
     try {

@@ -1,4 +1,4 @@
-import 'package:flutter_project/repositories/post_repository.dart';
+import 'package:flutter_project/notifiers/reply_provider.dart';
 import 'package:flutter_project/utils/posts_utils.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
@@ -17,22 +17,14 @@ class SeePost extends ConsumerStatefulWidget {
 }
 
 class _SeePostState extends ConsumerState<SeePost> {
-  late Future<List<PostResponse>> replies;
-
-  @override
-  void initState() {
-    super.initState();
-
-    final postRepo = ref.read(postRepositoryProvider);
-    replies = postRepo.getReplies(widget.post.id);
-  }
-
   void onGoingBack() {
     context.pop();
   }
 
   @override
   Widget build(BuildContext context) {
+    final replies = ref.watch(repliesProvider(widget.post.id));
+
     return Scaffold(
       appBar: AppBar(
         leading: context.canPop()
@@ -48,7 +40,6 @@ class _SeePostState extends ConsumerState<SeePost> {
               child: Column(
                 children: [
                   Post(postResponse: widget.post),
-                  SizedBox(height: 16),
                   Text(
                     "Replies",
                     style: TextStyle(
@@ -56,39 +47,26 @@ class _SeePostState extends ConsumerState<SeePost> {
                     ),
                   ),
                   SizedBox(height: 16),
-                  ReplyInput(),
+                  ReplyInput(postId: widget.post.id),
                 ],
               ),
             ),
           ),
-          FutureBuilder<List<PostResponse>>(
-            future: replies,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const SliverToBoxAdapter(
-                  child: Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(16),
-                      child: CircularProgressIndicator(),
-                    ),
-                  ),
-                );
-              }
 
-              if (snapshot.hasError) {
-                return SliverToBoxAdapter(
-                  child: Center(child: Text("Erro: ${snapshot.error}")),
-                );
-              }
+          replies.when(
+            loading: () => const SliverToBoxAdapter(
+              child: Center(
+                child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: CircularProgressIndicator(),
+                ),
+              ),
+            ),
 
-              if (!snapshot.hasData) {
-                return const SliverToBoxAdapter(
-                  child: Center(child: Text("Perfil não encontrado.")),
-                );
-              }
+            error: (error, stack) =>
+                SliverToBoxAdapter(child: Center(child: Text("Erro: $error"))),
 
-              final data = snapshot.data!;
-
+            data: (data) {
               return SliverPadding(
                 padding: const EdgeInsets.fromLTRB(0, 0, 16, 16),
                 sliver: SliverList.builder(

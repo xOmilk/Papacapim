@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_project/models/requests/create_post_request.dart';
+import 'package:flutter_project/models/requests/reply_post_request.dart';
 import 'package:flutter_project/models/responses/create_post_response.dart';
 import 'package:flutter_project/models/responses/post_response.dart';
 import 'package:flutter_project/notifiers/dio_provider.dart';
@@ -8,7 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class PostRepository {
   final Dio _dio;
 
-  PostRepository({required Dio dio}) : _dio = dio;
+  PostRepository({required this._dio});
 
   Future<CreatePostResponse> createNewPost(
     CreatePostRequest postRequest,
@@ -20,6 +21,22 @@ class PostRepository {
       );
 
       return CreatePostResponse.fromJson(createPostResponse.data);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<PostResponse> createNewReply(
+    int postId,
+    ReplyPostRequest replyPostRequest,
+  ) async {
+    try {
+      final createReplyResponse = await _dio.post(
+        "/posts/$postId/replies",
+        data: replyPostRequest.toJson(),
+      );
+
+      return PostResponse.fromJson(createReplyResponse.data);
     } catch (e) {
       rethrow;
     }

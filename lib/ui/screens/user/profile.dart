@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_project/models/responses/post_response.dart';
 import 'package:flutter_project/models/responses/user_response.dart';
+import 'package:flutter_project/notifiers/post_provider.dart';
+import 'package:flutter_project/notifiers/user_posts_provider.dart';
 import 'package:flutter_project/repositories/auth_repository.dart';
 import 'package:flutter_project/repositories/post_repository.dart';
 import 'package:flutter_project/repositories/user_repository.dart';
 import 'package:flutter_project/ui/components/post.dart';
+import 'package:flutter_project/ui/components/show_delete_post_dialog.dart';
+import 'package:flutter_project/ui/components/show_logout_popup.dart';
 import 'package:flutter_project/ui/components/show_message.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -20,7 +24,6 @@ class ProfileScreen extends ConsumerStatefulWidget {
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   late Future<UserResponse> myUserInfo;
-  late Future<List<PostResponse>> myUserPosts;
 
   bool following = false;
 
@@ -30,17 +33,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
     final authRepo = ref.read(authRepositoryProvider);
     final usersRepo = ref.read(usersRepositoryProvider);
-    final postRepo = ref.read(postRepositoryProvider);
 
     if (widget.login != null) {
       myUserInfo = usersRepo.getUser(widget.login!);
     } else {
       myUserInfo = authRepo.getMyProfile();
     }
-
-    myUserPosts = myUserInfo.then((user) {
-      return postRepo.getUserPosts(user.login);
-    });
   }
 
   void onGoingBack() {
@@ -51,42 +49,29 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     context.push("/edit-profile");
   }
 
-  void onLogoutButton() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text("Sair da conta?"),
-        content: Text("Você tem certeza que deseja sair da sua conta"),
-        actions: [
-          TextButton(
-            style: ButtonStyle(
-              overlayColor: WidgetStatePropertyAll(Colors.transparent),
-            ),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: Text(
-              "Cancelar",
-              style: TextStyle(color: Theme.of(context).colorScheme.outline),
-            ),
-          ),
-          FilledButton(
-            style: ButtonStyle(
-              backgroundColor: WidgetStatePropertyAll(
-                Theme.of(context).colorScheme.error,
-              ),
-            ),
-            onPressed: onLogout,
-            child: Text("Sair"),
-          ),
-        ],
-      ),
-    );
-  }
-
   void onLogout() {
     context.replace("/auth");
     Navigator.of(context).pop();
+  }
+
+  Future<void> onDeletePost(PostResponse post, String login) async {
+    final postRepo = ref.read(postRepositoryProvider);
+
+    try {
+      await postRepo.deletePost(post.id);
+      ref.invalidate(postProvider);
+      ref.invalidate(myPostsProvider(login));
+
+      if (context.mounted) {
+        Navigator.of(context).pop();
+        showMessage(context, "Post excluído com sucesso");
+      }
+    } catch (e) {
+      if (context.mounted) {
+        Navigator.of(context).pop();
+        showMessage(context, "Erro ao tentar excluir post", isError: true);
+      }
+    }
   }
 
   @override
@@ -94,14 +79,20 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: context.canPop()
-            ? IconButton(onPressed: onGoingBack, icon: Icon(Icons.arrow_back))
+            ? IconButton(
+                onPressed: onGoingBack,
+                icon: const Icon(Icons.arrow_back),
+              )
             : null,
         title: Text(widget.login != null ? "Perfil" : "Meu perfil"),
         actions: [
           if (widget.login == null)
-            IconButton(onPressed: onEditTap, icon: Icon(Icons.edit)),
+            IconButton(onPressed: onEditTap, icon: const Icon(Icons.edit)),
           if (widget.login == null)
-            IconButton(onPressed: onLogoutButton, icon: Icon(Icons.logout)),
+            IconButton(
+              onPressed: () => onLogoutButton(context, onLogout),
+              icon: const Icon(Icons.logout),
+            ),
         ],
       ),
       body: FutureBuilder<UserResponse>(
@@ -121,11 +112,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
           final user = snapshot.data!;
 
+          final posts = ref.watch(myPostsProvider(user.login));
+
           return CustomScrollView(
             slivers: [
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(16),
                   child: Column(
                     children: [
                       if (user.profileImage != null)
@@ -133,9 +126,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           width: 80,
                           height: 80,
                           child: ClipRRect(
-                            borderRadius: BorderRadiusGeometry.all(
-                              Radius.circular(100),
-                            ),
+                            borderRadius: BorderRadius.circular(100),
                             child: Image.network(
                               user.profileImage!,
                               fit: BoxFit.cover,
@@ -145,13 +136,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             ),
                           ),
                         ),
-                      if (user.profileImage != null) SizedBox(height: 8),
+
+                      if (user.profileImage != null) const SizedBox(height: 8),
+
                       Text(
                         user.name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(fontSize: 20),
+                        style: const TextStyle(fontSize: 20),
                       ),
+
                       Text(
                         "@${user.login}",
                         style: TextStyle(
@@ -159,7 +153,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           color: Theme.of(context).colorScheme.outline,
                         ),
                       ),
-                      SizedBox(height: 16),
+
+                      const SizedBox(height: 16),
+
                       IntrinsicHeight(
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -168,7 +164,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             Column(
                               children: [
                                 Text(
-                                  "Seguindo  ",
+                                  "Seguindo",
                                   style: TextStyle(
                                     color: Theme.of(
                                       context,
@@ -181,11 +177,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                     color: Theme.of(
                                       context,
                                     ).colorScheme.primary,
-                                    fontWeight: FontWeight(700),
+                                    fontWeight: FontWeight.w700,
                                   ),
                                 ),
                               ],
                             ),
+
                             const Padding(
                               padding: EdgeInsets.symmetric(horizontal: 16),
                               child: VerticalDivider(
@@ -193,6 +190,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                 color: Colors.grey,
                               ),
                             ),
+
                             Column(
                               children: [
                                 Text(
@@ -209,7 +207,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                     color: Theme.of(
                                       context,
                                     ).colorScheme.primary,
-                                    fontWeight: FontWeight(700),
+                                    fontWeight: FontWeight.w700,
                                   ),
                                 ),
                               ],
@@ -217,8 +215,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           ],
                         ),
                       ),
-                      if (widget.login != null) SizedBox(height: 16),
-                      if (widget.login != null)
+
+                      if (widget.login != null) ...[
+                        const SizedBox(height: 16),
                         FilledButton(
                           onPressed: () {
                             setState(() {
@@ -239,134 +238,83 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             ),
                           ),
                         ),
-                      SizedBox(height: 16),
+                      ],
+
+                      const SizedBox(height: 16),
+
                       Text(
                         "Posts",
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.primary,
-                          fontWeight: FontWeight(700),
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ],
                   ),
                 ),
               ),
-              FutureBuilder(
-                future: myUserPosts,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return SliverToBoxAdapter(
-                      child: const Center(child: CircularProgressIndicator()),
-                    );
-                  }
+              posts.when(
+                loading: () {
+                  return const SliverToBoxAdapter(
+                    child: Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(16),
+                        child: CircularProgressIndicator(),
+                      ),
+                    ),
+                  );
+                },
 
-                  if (snapshot.hasError) {
-                    return SliverToBoxAdapter(
-                      child: Center(child: Text("Erro: ${snapshot.error}")),
-                    );
-                  }
+                error: (error, stackTrace) {
+                  return SliverToBoxAdapter(
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Text("Erro: $error"),
+                      ),
+                    ),
+                  );
+                },
 
-                  if (!snapshot.hasData) {
-                    return SliverToBoxAdapter(
-                      child: const Center(child: SizedBox.shrink()),
-                    );
-                  }
-
-                  final posts = snapshot.data!;
-
-                  if (posts.isEmpty) {
-                    return SliverToBoxAdapter(
-                      child: Center(child: Text("Nenhum post encontrado")),
+                data: (data) {
+                  if (data.isEmpty) {
+                    return const SliverToBoxAdapter(
+                      child: Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(16),
+                          child: Text("Nenhum post encontrado"),
+                        ),
+                      ),
                     );
                   }
 
                   return SliverPadding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                     sliver: SliverList.separated(
-                      itemBuilder: (context, index) => Post(
-                        postResponse: posts[index],
-                        maxLines: 5,
-                        onDelete: widget.login == null
-                            ? () {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) => AlertDialog(
-                                    title: const Text("Excluir post?"),
-                                    content: const Text(
-                                      "Tem certeza que deseja excluir este post?",
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        style: const ButtonStyle(
-                                          overlayColor: WidgetStatePropertyAll(
-                                            Colors.transparent,
-                                          ),
-                                        ),
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: Text(
-                                          "Cancelar",
-                                          style: TextStyle(
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.outline,
-                                          ),
-                                        ),
-                                      ),
-                                      FilledButton(
-                                        style: ButtonStyle(
-                                          backgroundColor:
-                                              WidgetStatePropertyAll(
-                                                Theme.of(
-                                                  context,
-                                                ).colorScheme.error,
-                                              ),
-                                        ),
-                                        onPressed: () async {
-                                          final postRepo = ref.read(
-                                            postRepositoryProvider,
-                                          );
-                                          final postId = posts[index].id;
+                      itemCount: data.length,
+                      itemBuilder: (context, index) {
+                        final post = data[index];
 
-                                          try {
-                                            await postRepo.deletePost(postId);
-
-                                            setState(() {
-                                              posts.removeAt(index);
-                                            });
-
-                                            if (context.mounted) {
-                                              Navigator.of(context).pop();
-                                              showMessage(
-                                                context,
-                                                "Post excluído com sucesso",
-                                              );
-                                            }
-                                          } catch (e) {
-                                            if (context.mounted) {
-                                              Navigator.of(context).pop();
-                                              showMessage(
-                                                context,
-                                                "Erro ao tentar excluir post",
-                                                isError: true,
-                                              );
-                                            }
-                                          }
-                                        },
-                                        child: const Text("Excluir"),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              }
-                            : null,
-                      ),
-                      separatorBuilder: (context, index) => Padding(
-                        padding: EdgeInsetsGeometry.only(bottom: 8),
-                        child: Divider(),
-                      ),
-                      itemCount: posts.length,
+                        return Post(
+                          postResponse: post,
+                          maxLines: 5,
+                          onDelete: widget.login == null
+                              ? () {
+                                  showDeletePostDialog(
+                                    context,
+                                    post,
+                                    () async => onDeletePost(post, user.login),
+                                  );
+                                }
+                              : null,
+                        );
+                      },
+                      separatorBuilder: (context, index) {
+                        return const Padding(
+                          padding: EdgeInsets.only(bottom: 8),
+                          child: Divider(),
+                        );
+                      },
                     ),
                   );
                 },

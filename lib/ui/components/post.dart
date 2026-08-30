@@ -65,44 +65,48 @@ class _PostState extends ConsumerState<Post> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        GestureDetector(
-          onTap: onProfileTap,
-          child: Row(
-            children: [
-              if (widget.postResponse.user?.profileImage != null)
-                SizedBox(
-                  width: 45,
-                  height: 45,
-                  child: ClipRRect(
-                    borderRadius: BorderRadiusGeometry.all(
-                      Radius.circular(100),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            GestureDetector(
+              onTap: onProfileTap,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (widget.postResponse.user?.profileImage != null)
+                    SizedBox(
+                      width: 45,
+                      height: 45,
+                      child: ClipRRect(
+                        borderRadius: BorderRadiusGeometry.all(
+                          Radius.circular(100),
+                        ),
+                        child: Image.network(
+                          widget.postResponse.user!.profileImage!,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(Icons.broken_image, size: 64);
+                          },
+                        ),
+                      ),
                     ),
-                    child: Image.network(
-                      widget.postResponse.user!.profileImage!,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return const Icon(Icons.broken_image, size: 64);
-                      },
-                    ),
+                  if (widget.postResponse.user?.profileImage != null)
+                    SizedBox(width: 8),
+                  Text(
+                    widget.postResponse.user?.name ?? "",
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-              if (widget.postResponse.user?.profileImage != null)
-                SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  widget.postResponse.user?.name ?? "",
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                ],
               ),
-              if (widget.onDelete != null)
-                IconButton(
-                  icon: const Icon(Icons.delete_outline),
-                  color: Theme.of(context).colorScheme.error,
-                  onPressed: widget.onDelete,
-                ),
-            ],
-          ),
+            ),
+            if (widget.onDelete != null)
+              IconButton(
+                icon: const Icon(Icons.delete_outline),
+                color: Theme.of(context).colorScheme.error,
+                onPressed: widget.onDelete,
+              ),
+          ],
         ),
         SizedBox(height: 4),
         Text(

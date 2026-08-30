@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class UserRepository {
   final Dio _dio;
 
-  UserRepository({required Dio dio}) : _dio = dio;
+  UserRepository({required this._dio});
 
   Future<UserResponse> getUser(String login) async {
     try {

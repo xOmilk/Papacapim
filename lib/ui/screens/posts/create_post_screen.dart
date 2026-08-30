@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_project/models/requests/create_post_request.dart';
+import 'package:flutter_project/notifiers/post_provider.dart';
+import 'package:flutter_project/notifiers/user_posts_provider.dart';
 import 'package:flutter_project/repositories/post_repository.dart';
 import 'package:flutter_project/ui/components/show_message.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,7 +15,9 @@ class CreatePostScreen extends ConsumerStatefulWidget {
 }
 
 class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
+  final _formKey = GlobalKey<FormState>();
   final TextEditingController _messageController = TextEditingController();
+  bool loading = false;
 
   @override
   void dispose() {
@@ -26,28 +30,41 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
   }
 
   void onPublish() async {
-    final message = _messageController.text;
-    if (message.trim().isNotEmpty) {
-      final postRepo = ref.read(postRepositoryProvider);
+    if (!_formKey.currentState!.validate()) {
+      showMessage(context, "Post vazio", isError: true);
+      return;
+    }
 
-      try {
-        final postRequest = CreatePostRequest(message: message);
+    final postRequest = CreatePostRequest(message: _messageController.text);
+    final postRepo = ref.read(postRepositoryProvider);
 
-        final postResponse = await postRepo.createNewPost(postRequest);
-        print(postResponse.toString());
-        if (mounted) {
-          showMessage(context, "Post Criado com sucesso");
-          _messageController.clear();
-          context.push("/my-profile");
-        }
-      } catch (e) {
-        if (mounted) {
-          showMessage(
-            context,
-            "Erro ao tentar criar o post, tente novamente.",
-            isError: true,
-          );
-        }
+    setState(() {
+      loading = true;
+    });
+
+    try {
+      await postRepo.createNewPost(postRequest);
+      ref.invalidate(postProvider);
+      ref.invalidate(myPostsProvider);
+
+      if (mounted) {
+        showMessage(context, "Post Criado com sucesso");
+        _messageController.clear();
+        context.replace("/my-profile");
+      }
+    } catch (e) {
+      if (mounted) {
+        showMessage(
+          context,
+          "Erro ao tentar criar o post, tente novamente.",
+          isError: true,
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          loading = false;
+        });
       }
     }
   }
@@ -73,12 +90,17 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Form(
+          key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 child: TextFormField(
                   controller: _messageController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) return "Post vazio";
+                    return null;
+                  },
                   maxLines: null,
                   autofocus: true,
                   decoration: const InputDecoration(

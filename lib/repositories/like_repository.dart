@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class LikeRepository {
   final Dio _dio;
 
-  LikeRepository({required Dio dio}) : _dio = dio;
+  LikeRepository({required this._dio});
 
   Future<void> likePost(int postId) async {
     try {
