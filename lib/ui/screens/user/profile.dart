@@ -24,7 +24,7 @@ class ProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
-  late Future<UserResponse> myUserInfo;
+  late Future<UserResponse> user;
 
   bool following = false;
 
@@ -36,9 +36,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final usersRepo = ref.read(usersRepositoryProvider);
 
     if (widget.login != null) {
-      myUserInfo = usersRepo.getUser(widget.login!);
+      user = usersRepo.getUser(widget.login!);
     } else {
-      myUserInfo = authRepo.getMyProfile();
+      user = authRepo.getMyProfile();
     }
   }
 
@@ -93,7 +93,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         ],
       ),
       body: FutureBuilder<UserResponse>(
-        future: myUserInfo,
+        future: this.user,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());

@@ -1,146 +1,37 @@
+import 'package:flutter_project/models/requests/update_user_request.dart';
+import 'package:flutter_project/notifiers/prefs_provider.dart';
+import 'package:flutter_project/repositories/auth_repository.dart';
+import 'package:flutter_project/repositories/user_repository.dart';
+import 'package:flutter_project/ui/components/show_message.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_project/models/responses/user_response.dart';
+import 'package:flutter_project/ui/components/change_password_modal.dart';
+import 'package:flutter_project/ui/components/delete_profile_dialog.dart';
 import 'package:flutter_project/utils/navigation_utils.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
-class EditProfile extends StatefulWidget {
+class EditProfile extends ConsumerStatefulWidget {
   const EditProfile({super.key});
 
   @override
-  State<EditProfile> createState() => _EditProfileState();
+  ConsumerState<EditProfile> createState() => _EditProfileState();
 }
 
-class _EditProfileState extends State<EditProfile> {
-  final UserResponse user = UserResponse(
-    login: "luan",
-    name: "Luan Coelho",
-    profileImage:
-        "https://upload.wikimedia.org/wikipedia/commons/4/49/Panthera_tigris_tigris.jpg",
-  );
-  final _formKey = GlobalKey<FormState>();
+class _EditProfileState extends ConsumerState<EditProfile> {
+  late Future<UserResponse> user;
+
   final ImagePicker _picker = ImagePicker();
   String? imagePath;
-
-  void changePasswordModal() {
-    bool obscureNew = true;
-    bool obscureConfirm = true;
-
-    showDialog(
-      context: context,
-      builder: (BuildContext dialogContext) {
-        return StatefulBuilder(
-          builder: (context, setStateDialog) {
-            return AlertDialog(
-              title: Text("Trocar senha"),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("Nova senha"),
-                  SizedBox(height: 8),
-                  TextField(
-                    obscureText: obscureNew,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      suffixIcon: IconButton(
-                        onPressed: () {
-                          setStateDialog(() {
-                            obscureNew = !obscureNew;
-                          });
-                        },
-                        icon: Icon(
-                          obscureNew ? Icons.visibility_off : Icons.visibility,
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  Text("Confirmar senha"),
-                  SizedBox(height: 8),
-                  TextField(
-                    obscureText: obscureConfirm,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      suffixIcon: IconButton(
-                        onPressed: () {
-                          setStateDialog(() {
-                            obscureConfirm = !obscureConfirm;
-                          });
-                        },
-                        icon: Icon(
-                          obscureConfirm
-                              ? Icons.visibility_off
-                              : Icons.visibility,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(dialogContext).pop(),
-                  child: Text("Cancelar"),
-                ),
-                FilledButton(
-                  style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 12,
-                    ),
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                  ),
-                  onPressed: () {
-                    Navigator.of(dialogContext).pop();
-                  },
-                  child: Text("Alterar Senha"),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
-
-  void deleteProfileDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Excluir conta?"),
-        content: const Text("Tem certeza que deseja excluir esta conta?"),
-        actions: [
-          TextButton(
-            style: const ButtonStyle(
-              overlayColor: WidgetStatePropertyAll(Colors.transparent),
-            ),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: Text(
-              "Cancelar",
-              style: TextStyle(color: Theme.of(context).colorScheme.outline),
-            ),
-          ),
-          FilledButton(
-            style: ButtonStyle(
-              backgroundColor: WidgetStatePropertyAll(
-                Theme.of(context).colorScheme.error,
-              ),
-            ),
-            onPressed: () {
-              Navigator.of(context).pop();
-              context.replace("/auth");
-            },
-            child: const Text("Excluir"),
-          ),
-        ],
-      ),
-    );
-  }
+  String? imageBase64;
+  String? profileImageUrl;
+  final _formKey = GlobalKey<FormState>();
+  final _loginController = TextEditingController();
+  final _nameController = TextEditingController();
 
   void onImageTap() async {
     final ImageSource? source = await showModalBottomSheet<ImageSource>(
@@ -170,10 +61,60 @@ class _EditProfileState extends State<EditProfile> {
     if (image != null) {
       File imageFile = File(image.path);
 
+      final bytes = await imageFile.readAsBytes();
+      imageBase64 = base64Encode(bytes);
+
       setState(() {
         imagePath = imageFile.path;
       });
     }
+  }
+
+  Future<void> onSubmit() async {
+    final updateUserRequest = UpdateUserRequest(
+      login: _loginController.text,
+      name: _nameController.text,
+      imageData: imageBase64,
+    );
+    final userRepository = ref.read(usersRepositoryProvider);
+    final preferences = ref.read(prefsProvider);
+
+    try {
+      await userRepository.updateUser(updateUserRequest);
+      if (profileImageUrl != null) {
+        await NetworkImage(profileImageUrl!).evict();
+      }
+      await preferences.setToken("");
+      ref.invalidate(tokenProvider);
+      showMessage(context, "Usuário alterado com sucesso");
+      context.replace("/auth");
+    } catch (e) {
+      showMessage(context, "Erro ao alterar usuário", isError: true);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    final authRepo = ref.read(authRepositoryProvider);
+    user = authRepo.getMyProfile();
+
+    user.then((data) {
+      if (!mounted) return;
+
+      _loginController.text = data.login;
+      _nameController.text = data.name;
+
+      profileImageUrl = data.profileImage;
+    });
+  }
+
+  @override
+  void dispose() {
+    _loginController.dispose();
+    _nameController.dispose();
+    super.dispose();
   }
 
   @override
@@ -199,34 +140,61 @@ class _EditProfileState extends State<EditProfile> {
               children: [
                 Stack(
                   children: [
-                    SizedBox(
-                      width: 90,
-                      height: 90,
-                      child: ClipRRect(
-                        borderRadius: BorderRadiusGeometry.all(
-                          Radius.circular(100),
-                        ),
-                        child: InkWell(
-                          onTap: onImageTap,
-                          child: user.profileImage != null
-                              ? imagePath != null
-                                    ? Image.file(File(imagePath!))
-                                    : Image.network(
-                                        user.profileImage!,
-                                        fit: BoxFit.cover,
-                                        errorBuilder:
-                                            (context, error, stackTrace) {
-                                              return const Icon(
-                                                Icons.broken_image,
-                                                size: 64,
-                                              );
-                                            },
-                                      )
-                              : ColoredBox(
-                                  color: Theme.of(context).colorScheme.outline,
-                                ),
-                        ),
-                      ),
+                    FutureBuilder(
+                      future: user,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+
+                        if (snapshot.hasError) {
+                          return Center(child: Text("Erro: ${snapshot.error}"));
+                        }
+
+                        if (!snapshot.hasData) {
+                          return const Center(
+                            child: Text("Perfil não encontrado."),
+                          );
+                        }
+
+                        final data = snapshot.data!;
+                        profileImageUrl = data.profileImage;
+
+                        return SizedBox(
+                          width: 90,
+                          height: 90,
+                          child: ClipRRect(
+                            borderRadius: BorderRadiusGeometry.all(
+                              Radius.circular(100),
+                            ),
+                            child: InkWell(
+                              onTap: onImageTap,
+                              child: data.profileImage != null
+                                  ? imagePath != null
+                                        ? Image.file(File(imagePath!))
+                                        : Image.network(
+                                            data.profileImage!,
+                                            fit: BoxFit.cover,
+                                            errorBuilder:
+                                                (context, error, stackTrace) {
+                                                  return const Icon(
+                                                    Icons.broken_image,
+                                                    size: 64,
+                                                  );
+                                                },
+                                          )
+                                  : ColoredBox(
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.outline,
+                                    ),
+                            ),
+                          ),
+                        );
+                      },
                     ),
                     Positioned(
                       right: 0,
@@ -250,16 +218,20 @@ class _EditProfileState extends State<EditProfile> {
                   ],
                 ),
                 SizedBox(height: 8),
-                TextField(decoration: InputDecoration(hintText: "Login")),
+                TextFormField(
+                  controller: _loginController,
+                  decoration: InputDecoration(hintText: "Login"),
+                ),
                 SizedBox(height: 8),
-                TextField(decoration: InputDecoration(hintText: "Nome")),
+                TextFormField(
+                  controller: _nameController,
+                  decoration: InputDecoration(hintText: "Nome"),
+                ),
                 SizedBox(height: 8),
                 SizedBox(
                   width: double.infinity,
                   child: TextButton(
-                    onPressed: () {
-                      changePasswordModal();
-                    },
+                    onPressed: () => changePasswordModal(context),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: Text("Mudar senha"),
@@ -270,7 +242,7 @@ class _EditProfileState extends State<EditProfile> {
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton(
-                    onPressed: () {},
+                    onPressed: onSubmit,
                     child: Text("Atualizar"),
                   ),
                 ),
@@ -283,7 +255,7 @@ class _EditProfileState extends State<EditProfile> {
                         Theme.of(context).colorScheme.error,
                       ),
                     ),
-                    onPressed: deleteProfileDialog,
+                    onPressed: () => deleteProfileDialog(context),
                     child: Text("Excluir conta"),
                   ),
                 ),
