@@ -10,6 +10,7 @@ import 'package:flutter_project/ui/components/post.dart';
 import 'package:flutter_project/ui/components/show_delete_post_dialog.dart';
 import 'package:flutter_project/ui/components/show_logout_popup.dart';
 import 'package:flutter_project/ui/components/show_message.dart';
+import 'package:flutter_project/utils/navigation_utils.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -39,10 +40,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     } else {
       myUserInfo = authRepo.getMyProfile();
     }
-  }
-
-  void onGoingBack() {
-    context.pop();
   }
 
   void onEditTap() {
@@ -80,7 +77,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       appBar: AppBar(
         leading: context.canPop()
             ? IconButton(
-                onPressed: onGoingBack,
+                onPressed: () => NavigationUtils.onGoingBack(context),
                 icon: const Icon(Icons.arrow_back),
               )
             : null,

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_project/models/responses/user_response.dart';
+import 'package:flutter_project/utils/navigation_utils.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -22,10 +23,6 @@ class _EditProfileState extends State<EditProfile> {
   final _formKey = GlobalKey<FormState>();
   final ImagePicker _picker = ImagePicker();
   String? imagePath;
-
-  void onGoingBack() {
-    context.pop();
-  }
 
   void changePasswordModal() {
     bool obscureNew = true;
@@ -184,7 +181,10 @@ class _EditProfileState extends State<EditProfile> {
     return Scaffold(
       appBar: AppBar(
         leading: context.canPop()
-            ? IconButton(onPressed: onGoingBack, icon: Icon(Icons.arrow_back))
+            ? IconButton(
+                onPressed: () => NavigationUtils.onGoingBack(context),
+                icon: Icon(Icons.arrow_back),
+              )
             : null,
         title: Text("Editar perfil"),
       ),

@@ -4,6 +4,7 @@ import 'package:flutter_project/notifiers/post_provider.dart';
 import 'package:flutter_project/notifiers/user_posts_provider.dart';
 import 'package:flutter_project/repositories/post_repository.dart';
 import 'package:flutter_project/ui/components/show_message.dart';
+import 'package:flutter_project/utils/navigation_utils.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -23,10 +24,6 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
   void dispose() {
     _messageController.dispose();
     super.dispose();
-  }
-
-  void onGoingBack() {
-    context.pop();
   }
 
   void onPublish() async {
@@ -74,7 +71,10 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: context.canPop()
-            ? IconButton(onPressed: onGoingBack, icon: const Icon(Icons.close))
+            ? IconButton(
+                onPressed: () => NavigationUtils.onGoingBack(context),
+                icon: const Icon(Icons.close),
+              )
             : null,
         title: const Text("Criar post"),
         actions: [

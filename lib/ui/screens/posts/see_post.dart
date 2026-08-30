@@ -1,4 +1,5 @@
 import 'package:flutter_project/notifiers/reply_provider.dart';
+import 'package:flutter_project/utils/navigation_utils.dart';
 import 'package:flutter_project/utils/posts_utils.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
@@ -17,10 +18,6 @@ class SeePost extends ConsumerStatefulWidget {
 }
 
 class _SeePostState extends ConsumerState<SeePost> {
-  void onGoingBack() {
-    context.pop();
-  }
-
   @override
   Widget build(BuildContext context) {
     final replies = ref.watch(repliesProvider(widget.post.id));
@@ -28,7 +25,10 @@ class _SeePostState extends ConsumerState<SeePost> {
     return Scaffold(
       appBar: AppBar(
         leading: context.canPop()
-            ? IconButton(onPressed: onGoingBack, icon: Icon(Icons.arrow_back))
+            ? IconButton(
+                onPressed: () => NavigationUtils.onGoingBack(context),
+                icon: Icon(Icons.arrow_back),
+              )
             : null,
         title: Text("Post"),
       ),
