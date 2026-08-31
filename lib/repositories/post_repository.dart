@@ -43,12 +43,21 @@ class PostRepository {
   }
 
   Future<List<PostResponse>> getPosts({
-    int? page,
-    int? feed,
+    int? page = 0,
+    int? feed = 0,
     String? search,
   }) async {
+    final queryParams = <String, dynamic>{
+      'page': page,
+      'feed': feed,
+      if (search != null && search.trim().isNotEmpty) 'search': search.trim(),
+    };
+
     try {
-      final postsResponse = await _dio.get("/posts");
+      final postsResponse = await _dio.get(
+        "/posts",
+        queryParameters: queryParams,
+      );
       return (postsResponse.data as List)
           .map((post) => PostResponse.fromJson(post))
           .toList();

@@ -1,25 +1,17 @@
-import 'package:flutter_project/models/responses/post_response.dart';
 import 'package:flutter_project/notifiers/post_provider.dart';
 import 'package:flutter_project/ui/components/post.dart';
 import 'package:flutter_project/utils/posts_utils.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 
-class FollowingScreen extends ConsumerStatefulWidget {
+class FollowingScreen extends ConsumerWidget {
   const FollowingScreen({super.key});
 
   @override
-  ConsumerState<FollowingScreen> createState() => _FollowingScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final postsAsync = ref.watch(postProvider((feed: 1, page: null, search: null)));
 
-class _FollowingScreenState extends ConsumerState<FollowingScreen> {
-  late Future<List<PostResponse>> posts;
-
-  @override
-  Widget build(BuildContext context) {
-    final posts = ref.watch(postProvider((feed: 1, page: null, search: null)));
-
-    return posts.when(
+    return postsAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, stackTrace) => Center(child: Text("Erro: $error")),
       data: (data) => ListView.separated(
@@ -37,3 +29,4 @@ class _FollowingScreenState extends ConsumerState<FollowingScreen> {
     );
   }
 }
+
