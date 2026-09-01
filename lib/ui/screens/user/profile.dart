@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_project/models/responses/post_response.dart';
 import 'package:flutter_project/models/responses/user_response.dart';
 import 'package:flutter_project/notifiers/post_provider.dart';
+import 'package:flutter_project/notifiers/prefs_provider.dart';
 import 'package:flutter_project/notifiers/user_posts_provider.dart';
 import 'package:flutter_project/repositories/auth_repository.dart';
 import 'package:flutter_project/repositories/post_repository.dart';
@@ -52,9 +53,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   Future<void> onLogout() async {
     final authRepo = ref.read(authRepositoryProvider);
+    final prefsService = ref.read(prefsProvider);
 
     try {
       await authRepo.logout();
+      prefsService.setToken("");
       context.replace("/auth");
       Navigator.of(context).pop();
     } catch (e) {

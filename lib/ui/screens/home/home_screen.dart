@@ -22,7 +22,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (prefsService.getToken() == null && mounted) {
+      if ((prefsService.getToken() == null ||
+              prefsService.getToken()?.isEmpty == true) &&
+          mounted) {
         showMessage(context, "Você não está logado", isError: true);
         context.replace("/auth");
       }
