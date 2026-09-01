@@ -35,10 +35,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final authRepo = ref.read(authRepositoryProvider);
     final usersRepo = ref.read(usersRepositoryProvider);
 
-    if (widget.login != null) {
-      user = usersRepo.getUser(widget.login!);
-    } else {
-      user = authRepo.getMyProfile();
+    try {
+      if (widget.login != null) {
+        user = usersRepo.getUser(widget.login!);
+      } else {
+        user = authRepo.getMyProfile();
+      }
+    } catch (e) {
+      showMessage(context, "Ocorreu um erro ao obter usuário");
     }
   }
 
@@ -46,9 +50,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     context.push("/edit-profile");
   }
 
-  void onLogout() {
-    context.replace("/auth");
-    Navigator.of(context).pop();
+  Future<void> onLogout() async {
+    final authRepo = ref.read(authRepositoryProvider);
+
+    try {
+      await authRepo.logout();
+      context.replace("/auth");
+      Navigator.of(context).pop();
+    } catch (e) {
+      showMessage(context, "Ocorreu um erro ao deslogar", isError: true);
+    }
   }
 
   Future<void> onDeletePost(PostResponse post, String login) async {

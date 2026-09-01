@@ -41,7 +41,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       final response = await authRepo.login(loginRequest);
       final preferences = ref.read(prefsProvider);
 
-      print("Token retornado ${response.token}");
       await preferences.setToken(response.token);
 
       ref.invalidate(tokenProvider);
@@ -51,7 +50,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         context.go("/");
       }
     } catch (e) {
-      // Se deu erro, avisa o usuário
       if (mounted) {
         showMessage(context, "Erro ao fazer login", isError: true);
       }

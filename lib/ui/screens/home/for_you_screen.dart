@@ -2,7 +2,6 @@ import 'package:flutter_project/notifiers/post_provider.dart';
 import 'package:flutter_project/utils/posts_utils.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_project/models/responses/post_response.dart';
 import 'package:flutter_project/ui/components/post.dart';
 
 class ForYouScreen extends ConsumerStatefulWidget {
@@ -13,8 +12,6 @@ class ForYouScreen extends ConsumerStatefulWidget {
 }
 
 class _ForYouScreenState extends ConsumerState<ForYouScreen> {
-  late Future<List<PostResponse>> posts;
-
   @override
   Widget build(BuildContext context) {
     final posts = ref.watch(

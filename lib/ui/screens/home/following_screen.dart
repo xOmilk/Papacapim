@@ -9,9 +9,9 @@ class FollowingScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final postsAsync = ref.watch(postProvider((feed: 1, page: null, search: null)));
+    final posts = ref.watch(postProvider((feed: 1, page: null, search: null)));
 
-    return postsAsync.when(
+    return posts.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, stackTrace) => Center(child: Text("Erro: $error")),
       data: (data) => ListView.separated(
@@ -29,4 +29,3 @@ class FollowingScreen extends ConsumerWidget {
     );
   }
 }
-
