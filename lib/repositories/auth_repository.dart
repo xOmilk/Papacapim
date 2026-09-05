@@ -44,7 +44,7 @@ class AuthRepository {
 
   Future<void> logout() async {
     try {
-      await _dio.delete("/users/1");
+      await _dio.delete("/sessions/1");
     } catch (e) {
       rethrow;
     }

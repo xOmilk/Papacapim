@@ -1,3 +1,10 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_project/models/responses/user_response.dart';
+import 'package:flutter_project/ui/components/change_password_modal.dart';
+import 'package:flutter_project/ui/components/delete_profile_dialog.dart';
+import 'package:flutter_project/utils/navigation_utils.dart';
+import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter_project/models/requests/update_user_request.dart';
 import 'package:flutter_project/notifiers/prefs_provider.dart';
 import 'package:flutter_project/repositories/auth_repository.dart';
@@ -6,14 +13,6 @@ import 'package:flutter_project/ui/components/show_message.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:convert';
 import 'dart:io';
-
-import 'package:flutter/material.dart';
-import 'package:flutter_project/models/responses/user_response.dart';
-import 'package:flutter_project/ui/components/change_password_modal.dart';
-import 'package:flutter_project/ui/components/delete_profile_dialog.dart';
-import 'package:flutter_project/utils/navigation_utils.dart';
-import 'package:go_router/go_router.dart';
-import 'package:image_picker/image_picker.dart';
 
 class EditProfile extends ConsumerStatefulWidget {
   const EditProfile({super.key});

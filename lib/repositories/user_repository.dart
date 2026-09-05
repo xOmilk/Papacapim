@@ -22,6 +22,7 @@ class UserRepository {
     try {
       await _dio.patch("/users/1", data: updateUserRequest.toJson());
     } catch (e) {
+      print(e);
       rethrow;
     }
   }

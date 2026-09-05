@@ -1,0 +1,33 @@
+@BASE_URL=https://api.papacapim.just.pro.br
+
+### AUTH ###
+
+### Register
+
+POST {{BASE_URL}}/users
+Content-Type: application/json
+
+{
+    "login": "luancoelho",
+    "name": "Luan Coelho",
+    "password": "12345",
+    "password_confirmation": "12345"
+}
+
+### Login
+
+POST {{BASE_URL}}/sessions
+Content-Type: application/json
+
+{
+    "login": "luan_coelho",
+    "password": "luan123"
+}
+
+### Logout
+
+DELETE {{BASE_URL}}/sessions/1
+
+### Delete User
+
+DELETE {{BASE_URL}}/users/me
