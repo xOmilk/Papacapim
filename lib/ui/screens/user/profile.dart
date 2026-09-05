@@ -42,8 +42,66 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       } else {
         user = authRepo.getMyProfile();
       }
+
+      user.then((value) {
+        if (mounted) {
+          setState(() {
+            following = value.youFollow as bool;
+          });
+        }
+      });
     } catch (e) {
       showMessage(context, "Ocorreu um erro ao obter usuário");
+    }
+  }
+
+  void changeFollowingState() {
+    setState(() {
+      following = !following;
+    });
+  }
+
+  Future<void> followUser(String loginUserToFollow) async {
+    final usersRepo = ref.read(usersRepositoryProvider);
+
+    try {
+      final followerLogin = await usersRepo
+          .followUser(loginUserToFollow)
+          .then((onvalue) => onvalue.followerLogin);
+
+      if (mounted) {
+        showMessage(context, "Você seguiu @$loginUserToFollow!");
+        changeFollowingState();
+      }
+    } catch (e) {
+      if (mounted) {
+        showMessage(
+          context,
+          "Erro ao tentar seguir @$loginUserToFollow.",
+          isError: true,
+        );
+      }
+    }
+  }
+
+  Future<void> unfollowUser(String loginUserToFollow) async {
+    final usersRepo = ref.read(usersRepositoryProvider);
+
+    try {
+      await usersRepo.unfollowUser(loginUserToFollow);
+
+      if (mounted) {
+        showMessage(context, "Você deixou de seguir @$loginUserToFollow");
+        changeFollowingState();
+      }
+    } catch (err) {
+      if (mounted) {
+        showMessage(
+          context,
+          "Erro ao tentar deixar de seguir @$loginUserToFollow",
+          isError: true,
+        );
+      }
     }
   }
 
@@ -230,10 +288,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       if (widget.login != null) ...[
                         const SizedBox(height: 16),
                         FilledButton(
-                          onPressed: () {
-                            setState(() {
-                              following = !following;
-                            });
+                          onPressed: () async {
+                            if (following) {
+                              await unfollowUser(user.login);
+                            } else {
+                              await followUser(user.login);
+                            }
                           },
                           style: ButtonStyle(
                             backgroundColor: WidgetStatePropertyAll(
