@@ -21,12 +21,11 @@ class UserRepository {
 
   Future<List<UserResponse>> listUsers({
     int? page = 0,
-    int? feed = 0,
+
     String? search,
   }) async {
     final queryParams = <String, dynamic>{
-      'feed': feed,
-      if (search != null && search.trim().isNotEmpty) 'search': search.trim(),
+      if (search != null && search.trim().isNotEmpty) 'search': search.trim().toString(),
     };
 
     try {

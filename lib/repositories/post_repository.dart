@@ -49,7 +49,7 @@ class PostRepository {
   }) async {
     final queryParams = <String, dynamic>{
       'feed': feed,
-      if (search != null && search.trim().isNotEmpty) 'search': search.trim(),
+      if (search != null && search.trim().isNotEmpty) 'search': search.trim().toString(),
     };
 
     try {
