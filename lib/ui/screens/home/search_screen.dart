@@ -1,8 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_project/models/responses/post_response.dart';
+import 'package:flutter_project/models/responses/user_response.dart';
 import 'package:flutter_project/repositories/post_repository.dart';
 import 'package:flutter_project/repositories/user_repository.dart';
+import 'package:flutter_project/ui/components/post.dart';
 import 'package:flutter_project/ui/components/show_message.dart';
+import 'package:flutter_project/utils/posts_utils.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class SearchScreen extends ConsumerStatefulWidget {
@@ -14,6 +18,11 @@ class SearchScreen extends ConsumerStatefulWidget {
 
 class _SearchScreenState extends ConsumerState<SearchScreen> {
   final searchControl = TextEditingController();
+
+  List<PostResponse>? searchPosts;
+  List<UserResponse>? searchUsers;
+
+  bool isSearchLoading = false;
 
   bool isSearchingPosts = true;
 
@@ -41,15 +50,31 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     _debounce = Timer(const Duration(milliseconds: 600), () async {
       final usersRepo = ref.read(usersRepositoryProvider);
       final postsRepo = ref.read(postRepositoryProvider);
+
+      setState(() {
+        isSearchLoading = true;
+      });
       try {
         if (isSearchingPosts) {
           final posts = await postsRepo.getPosts(search: searchInput.text);
+          setState(() {
+            searchPosts = posts;
+          });
         } else {
           final users = await usersRepo.listUsers(search: searchInput.text);
+          setState(() {
+            searchUsers = users;
+          });
         }
       } catch (e) {
         if (mounted) {
           showMessage(context, "message", isError: true);
+        }
+      } finally {
+        if (mounted) {
+          setState(() {
+            isSearchLoading = false;
+          });
         }
       }
     });
@@ -95,6 +120,30 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   ),
                 ),
               ),
+            ),
+            SizedBox(height: 16),
+            Expanded(
+              child: isSearchLoading
+                  ? Center(child: CircularProgressIndicator())
+                  : isSearchingPosts
+                  //caso esteja procurando posts
+                  ? ListView.separated(
+                      itemCount: searchPosts?.length ?? 0,
+                      itemBuilder: (context, index) => InkWell(
+                        onTap: () =>
+                            PostsUtils.onPostTap(context, searchPosts![index]),
+                        child: Post(
+                          postResponse: searchPosts![index],
+                          maxLines: 5,
+                        ),
+                      ),
+                      separatorBuilder: (context, index) => const Padding(
+                        padding: EdgeInsets.only(bottom: 8),
+                        child: Divider(),
+                      ),
+                    )
+                  //caso esteja procurando usuarios
+                  : ListView(),
             ),
           ],
         ),
