@@ -12,6 +12,7 @@ import 'package:flutter_project/ui/components/show_delete_post_dialog.dart';
 import 'package:flutter_project/ui/components/show_logout_popup.dart';
 import 'package:flutter_project/ui/components/show_message.dart';
 import 'package:flutter_project/utils/navigation_utils.dart';
+import 'package:flutter_project/utils/posts_utils.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -383,18 +384,21 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       itemBuilder: (context, index) {
                         final post = data[index];
 
-                        return Post(
-                          postResponse: post,
-                          maxLines: 5,
-                          onDelete: widget.login == null
-                              ? () {
-                                  showDeletePostDialog(
-                                    context,
-                                    post,
-                                    () async => onDeletePost(post, user.login),
-                                  );
-                                }
-                              : null,
+                        return InkWell(
+                          onTap: () => PostsUtils.onPostTap(context, post),
+                          child: Post(
+                            postResponse: post,
+                            maxLines: 5,
+                            onDelete: widget.login == null
+                                ? () {
+                                    showDeletePostDialog(
+                                      context,
+                                      post,
+                                      () async => onDeletePost(post, user.login),
+                                    );
+                                  }
+                                : null,
+                          ),
                         );
                       },
                       separatorBuilder: (context, index) {

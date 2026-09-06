@@ -19,6 +19,31 @@ class UserRepository {
     }
   }
 
+  Future<List<UserResponse>> listUsers({
+    int? page = 0,
+    int? feed = 0,
+    String? search,
+  }) async {
+    final queryParams = <String, dynamic>{
+      'feed': feed,
+      if (search != null && search.trim().isNotEmpty) 'search': search.trim(),
+    };
+
+    try {
+      final users = await _dio.get('/users', queryParameters: queryParams);
+      return (users.data as List)
+          .map((user) => UserResponse.fromJson(user))
+          .toList();
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404) {
+        return List.empty();
+      }
+      rethrow;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   Future<void> updateUser(UpdateUserRequest updateUserRequest) async {
     try {
       await _dio.patch("/users/1", data: updateUserRequest.toJson());
