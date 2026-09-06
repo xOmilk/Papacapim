@@ -6,7 +6,9 @@ import 'package:flutter_project/repositories/post_repository.dart';
 import 'package:flutter_project/repositories/user_repository.dart';
 import 'package:flutter_project/ui/components/post.dart';
 import 'package:flutter_project/ui/components/show_message.dart';
+import 'package:flutter_project/ui/components/user.dart';
 import 'package:flutter_project/utils/posts_utils.dart';
+import 'package:flutter_project/utils/user_utils.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class SearchScreen extends ConsumerStatefulWidget {
@@ -41,7 +43,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     super.dispose();
   }
 
-  onSearchInput(TextEditingController searchInput) {
+  void onSearchInput(TextEditingController searchInput) {
     if (searchInput.text.trim().isEmpty) {
       return;
     }
@@ -99,14 +101,12 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   setState(() {
                     isSearchingPosts = newSelection.first;
                   });
-                  // Dispara a busca automaticamente ao trocar de aba
+                  //busca automaticamente ao trocar de aba
                   onSearchInput(searchControl);
                 },
               ),
             ),
-            SizedBox(
-              height: 16,
-            ), // Espaçamento entre os botões e o campo de texto
+            SizedBox(height: 16),
             TextField(
               controller: searchControl,
               onChanged: (value) => onSearchInput(searchControl),
@@ -143,7 +143,19 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                       ),
                     )
                   //caso esteja procurando usuarios
-                  : ListView(),
+                  : ListView.separated(
+                      itemCount: searchUsers?.length ?? 0,
+                      itemBuilder: (context, index) => InkWell(
+                        child: User(userResponse: searchUsers![index]),
+                        onTap: () => {
+                          UsersUtils.onPostTap(context, searchUsers![index]),
+                        },
+                      ),
+                      separatorBuilder: (context, index) => const Padding(
+                        padding: EdgeInsets.only(bottom: 8),
+                        child: Divider(),
+                      ),
+                    ),
             ),
           ],
         ),
