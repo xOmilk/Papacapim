@@ -28,6 +28,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   late Future<UserResponse> user;
 
   bool following = false;
+  int followingNumber = 0;
 
   @override
   void initState() {
@@ -35,28 +36,40 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
     final authRepo = ref.read(authRepositoryProvider);
     final usersRepo = ref.read(usersRepositoryProvider);
+    final preferences = ref.read(prefsProvider);
 
-    try {
-      if (widget.login != null) {
-        user = usersRepo.getUser(widget.login!);
-      } else {
-        user = authRepo.getMyProfile();
-      }
+    final preferencesLogin = preferences.getLogin();
 
-      user.then((value) {
-        if (mounted) {
-          setState(() {
-            following = value.youFollow as bool;
-          });
-        }
-      });
-    } catch (e) {
-      showMessage(context, "Ocorreu um erro ao obter usuário");
+    if (!isOwnProfile()) {
+      user = usersRepo.getUser(widget.login!);
+    } else {
+      user = authRepo.getMyProfile();
     }
+
+    user.then((value) {
+      if (!mounted) return;
+
+      setState(() {
+        following = value.youFollow as bool;
+        followingNumber = value.followingNumber ?? 0;
+      });
+    });
+  }
+
+  bool isOwnProfile() {
+    final preferences = ref.read(prefsProvider);
+    final preferencesLogin = preferences.getLogin();
+
+    return widget.login == null || widget.login == preferencesLogin;
   }
 
   void changeFollowingState() {
     setState(() {
+      if (following) {
+        followingNumber--;
+      } else {
+        followingNumber++;
+      }
       following = !following;
     });
   }
@@ -65,14 +78,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final usersRepo = ref.read(usersRepositoryProvider);
 
     try {
-      final followerLogin = await usersRepo
-          .followUser(loginUserToFollow)
-          .then((onvalue) => onvalue.followerLogin);
+      await usersRepo.followUser(loginUserToFollow);
 
       if (mounted) {
         showMessage(context, "Você seguiu @$loginUserToFollow!");
         changeFollowingState();
       }
+
+      ref.invalidate(postProvider);
     } catch (e) {
       if (mounted) {
         showMessage(
@@ -94,6 +107,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         showMessage(context, "Você deixou de seguir @$loginUserToFollow");
         changeFollowingState();
       }
+
+      ref.invalidate(postProvider);
     } catch (err) {
       if (mounted) {
         showMessage(
@@ -115,7 +130,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
     try {
       await authRepo.logout();
-      prefsService.setToken("");
+      await prefsService.clearAuth();
       context.replace("/auth");
       Navigator.of(context).pop();
     } catch (e) {
@@ -153,11 +168,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 icon: const Icon(Icons.arrow_back),
               )
             : null,
-        title: Text(widget.login != null ? "Perfil" : "Meu perfil"),
+        title: Text(
+          isOwnProfile() ? "Meu perfil" : "Perfil de ${widget.login}",
+        ),
         actions: [
-          if (widget.login == null)
+          if (isOwnProfile())
             IconButton(onPressed: onEditTap, icon: const Icon(Icons.edit)),
-          if (widget.login == null)
+          if (isOwnProfile())
             IconButton(
               onPressed: () => onLogoutButton(context, onLogout),
               icon: const Icon(Icons.logout),
@@ -165,7 +182,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         ],
       ),
       body: FutureBuilder<UserResponse>(
-        future: this.user,
+        future: user,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -241,7 +258,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   ),
                                 ),
                                 Text(
-                                  (user.followingNumber ?? "?").toString(),
+                                  (followingNumber).toString(),
                                   style: TextStyle(
                                     color: Theme.of(
                                       context,

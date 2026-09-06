@@ -15,4 +15,18 @@ class PrefsService {
   Future<void> setToken(String token) async {
     await _prefs.setString("token", token);
   }
+
+  String? getLogin() {
+    var login = _prefs.getString("login");
+    return login;
+  }
+
+  Future<void> setLogin(String login) async {
+    await _prefs.setString("login", login);
+  }
+
+  Future<void> clearAuth() async {
+    await _prefs.remove("token");
+    await _prefs.remove("login");
+  }
 }

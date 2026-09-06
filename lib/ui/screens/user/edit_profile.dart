@@ -83,7 +83,7 @@ class _EditProfileState extends ConsumerState<EditProfile> {
       if (profileImageUrl != null) {
         await NetworkImage(profileImageUrl!).evict();
       }
-      await preferences.setToken("");
+      await preferences.clearAuth();
       ref.invalidate(tokenProvider);
       showMessage(context, "Usuário alterado com sucesso");
       context.replace("/auth");
@@ -230,7 +230,7 @@ class _EditProfileState extends ConsumerState<EditProfile> {
                 SizedBox(
                   width: double.infinity,
                   child: TextButton(
-                    onPressed: () => changePasswordModal(context),
+                    onPressed: () => changePasswordModal(ref, context),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: Text("Mudar senha"),

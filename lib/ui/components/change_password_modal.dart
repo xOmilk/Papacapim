@@ -1,8 +1,48 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_project/models/requests/update_user_request.dart';
+import 'package:flutter_project/repositories/user_repository.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-void changePasswordModal(BuildContext context) {
+void changePasswordModal(WidgetRef ref, BuildContext context) {
+  final formKey = GlobalKey<FormState>();
+  final newPasswordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
   bool obscureNew = true;
   bool obscureConfirm = true;
+
+  void onSubmit() async {
+    if (formKey.currentState!.validate()) {
+      final newPassword = newPasswordController.text;
+      final confirmPassword = confirmPasswordController.text;
+
+      if (newPassword != confirmPassword) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("As senhas não coincidem.")));
+        return;
+      }
+
+      final updateUserRequest = UpdateUserRequest(
+        password: newPassword,
+        passwordConfirmation: confirmPassword,
+      );
+
+      final usersRepo = ref.read(usersRepositoryProvider);
+
+      try {
+        await usersRepo.updateUser(updateUserRequest);
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Senha alterada com sucesso.")));
+      } catch (e) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Erro ao alterar a senha.")));
+      }
+
+      Navigator.of(context).pop();
+    }
+  }
 
   showDialog(
     context: context,
@@ -11,50 +51,55 @@ void changePasswordModal(BuildContext context) {
         builder: (context, setStateDialog) {
           return AlertDialog(
             title: Text("Trocar senha"),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Nova senha"),
-                SizedBox(height: 8),
-                TextField(
-                  obscureText: obscureNew,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    suffixIcon: IconButton(
-                      onPressed: () {
-                        setStateDialog(() {
-                          obscureNew = !obscureNew;
-                        });
-                      },
-                      icon: Icon(
-                        obscureNew ? Icons.visibility_off : Icons.visibility,
+            content: Form(
+              key: formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Nova senha"),
+                  SizedBox(height: 8),
+                  TextFormField(
+                    controller: newPasswordController,
+                    obscureText: obscureNew,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          setStateDialog(() {
+                            obscureNew = !obscureNew;
+                          });
+                        },
+                        icon: Icon(
+                          obscureNew ? Icons.visibility_off : Icons.visibility,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                SizedBox(height: 16),
-                Text("Confirmar senha"),
-                SizedBox(height: 8),
-                TextField(
-                  obscureText: obscureConfirm,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    suffixIcon: IconButton(
-                      onPressed: () {
-                        setStateDialog(() {
-                          obscureConfirm = !obscureConfirm;
-                        });
-                      },
-                      icon: Icon(
-                        obscureConfirm
-                            ? Icons.visibility_off
-                            : Icons.visibility,
+                  SizedBox(height: 16),
+                  Text("Confirmar senha"),
+                  SizedBox(height: 8),
+                  TextFormField(
+                    controller: confirmPasswordController,
+                    obscureText: obscureConfirm,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          setStateDialog(() {
+                            obscureConfirm = !obscureConfirm;
+                          });
+                        },
+                        icon: Icon(
+                          obscureConfirm
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             actions: [
               TextButton(
@@ -69,9 +114,7 @@ void changePasswordModal(BuildContext context) {
                   ),
                   backgroundColor: Theme.of(context).colorScheme.primary,
                 ),
-                onPressed: () {
-                  Navigator.of(dialogContext).pop();
-                },
+                onPressed: onSubmit,
                 child: Text("Alterar Senha"),
               ),
             ],

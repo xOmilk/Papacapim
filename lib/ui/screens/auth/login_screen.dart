@@ -42,6 +42,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       final preferences = ref.read(prefsProvider);
 
       await preferences.setToken(response.token);
+      await preferences.setLogin(response.userLogin);
 
       ref.invalidate(tokenProvider);
 
