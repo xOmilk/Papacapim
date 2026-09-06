@@ -106,7 +106,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 },
               ),
             ),
-            SizedBox(height: 16),
+            SizedBox(
+              height: 16,
+            ),
             TextField(
               controller: searchControl,
               onChanged: (value) => onSearchInput(searchControl),
