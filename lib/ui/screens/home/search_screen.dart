@@ -99,14 +99,14 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   setState(() {
                     isSearchingPosts = newSelection.first;
                   });
-                  // Dispara a busca automaticamente ao trocar de aba
+                  //busca automaticamente ao trocar de aba
                   onSearchInput(searchControl);
                 },
               ),
             ),
             SizedBox(
               height: 16,
-            ), // Espaçamento entre os botões e o campo de texto
+            ),
             TextField(
               controller: searchControl,
               onChanged: (value) => onSearchInput(searchControl),
