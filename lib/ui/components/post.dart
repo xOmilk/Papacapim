@@ -1,5 +1,6 @@
 import 'package:flutter_project/repositories/like_repository.dart';
 import 'package:flutter_project/ui/components/show_message.dart';
+import 'package:flutter_project/utils/format_date.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_project/models/responses/post_response.dart';
@@ -74,24 +75,21 @@ class _PostState extends ConsumerState<Post> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   if (widget.postResponse.user?.profileImage != null)
-                    SizedBox(
-                      width: 45,
-                      height: 45,
-                      child: ClipRRect(
-                        borderRadius: BorderRadiusGeometry.all(
-                          Radius.circular(100),
-                        ),
-                        child: Image.network(
-                          widget.postResponse.user!.profileImage!,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Icon(Icons.broken_image, size: 64);
-                          },
-                        ),
+                    CircleAvatar(
+                      radius: 22.5,
+                      backgroundImage: NetworkImage(widget.postResponse.user!.profileImage!),
+                    )
+                  else
+                    CircleAvatar(
+                      radius: 22.5,
+                      backgroundColor: Colors.grey[300],
+                      child: Icon(
+                        Icons.person,
+                        size: 26,
+                        color: Colors.grey[600],
                       ),
                     ),
-                  if (widget.postResponse.user?.profileImage != null)
-                    SizedBox(width: 8),
+                  SizedBox(width: 8),
                   Text(
                     widget.postResponse.user?.name ?? "",
                     maxLines: 1,
@@ -108,13 +106,23 @@ class _PostState extends ConsumerState<Post> {
               ),
           ],
         ),
-        SizedBox(height: 4),
+        SizedBox(height: 8),
         Text(
           widget.postResponse.message,
           maxLines: widget.maxLines,
           overflow: widget.maxLines == null ? null : TextOverflow.ellipsis,
         ),
         SizedBox(height: 4),
+        Padding(
+          padding: const EdgeInsetsGeometry.directional(top: 8, bottom: 4),
+          child: Text(
+            formatDate(
+              widget.postResponse.createdAt,
+              style: DateFormatStyle.shortWithTime,
+            ),
+            style: TextStyle(color: Colors.grey[600]),
+          ),
+        ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
