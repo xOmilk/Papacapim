@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_project/notifiers/router_provider.dart';
 import 'package:flutter_project/services/prefs_service.dart';
@@ -20,10 +21,18 @@ class MyApp extends ConsumerWidget {
     final goRouter = ref.watch(routerProvider);
 
     return MaterialApp.router(
-      title: 'Flutter Demo',
+      title: 'Papacapim',
       theme: AppTheme.darkTheme,
       routerConfig: goRouter,
       debugShowCheckedModeBanner: false,
+      scrollBehavior: const MaterialScrollBehavior().copyWith(
+        dragDevices: {
+          PointerDeviceKind.mouse,
+          PointerDeviceKind.touch,
+          PointerDeviceKind.stylus,
+          PointerDeviceKind.trackpad,
+        },
+      ),
     );
   }
 }

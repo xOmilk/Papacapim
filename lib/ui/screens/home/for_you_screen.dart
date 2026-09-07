@@ -21,17 +21,24 @@ class _ForYouScreenState extends ConsumerState<ForYouScreen> {
     return posts.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, stackTrace) => Center(child: Text("Erro: $error")),
-      data: (data) => ListView.separated(
-        padding: const EdgeInsets.all(16),
-        itemBuilder: (context, index) => InkWell(
-          onTap: () => PostsUtils.onPostTap(context, data[index]),
-          child: Post(postResponse: data[index], maxLines: 5),
+      data: (data) => RefreshIndicator(
+        onRefresh: () async {
+          return ref.refresh(
+            postProvider((feed: null, page: null, search: null)).future,
+          );
+        },
+        child: ListView.separated(
+          padding: const EdgeInsets.all(16),
+          itemBuilder: (context, index) => InkWell(
+            onTap: () => PostsUtils.onPostTap(context, data[index]),
+            child: Post(postResponse: data[index], maxLines: 5),
+          ),
+          separatorBuilder: (context, index) => const Padding(
+            padding: EdgeInsets.only(bottom: 8),
+            child: Divider(),
+          ),
+          itemCount: data.length,
         ),
-        separatorBuilder: (context, index) => const Padding(
-          padding: EdgeInsets.only(bottom: 8),
-          child: Divider(),
-        ),
-        itemCount: data.length,
       ),
     );
   }
