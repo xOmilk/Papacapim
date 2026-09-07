@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_project/ui/components/user_avatar.dart';
 import 'package:flutter_project/models/responses/user_response.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -17,17 +18,10 @@ class _UserState extends ConsumerState<User> {
     return Row(
       spacing: 10,
       children: [
-        if (widget.userResponse.profileImage != null)
-          CircleAvatar(
-            radius: 22.5,
-            backgroundImage: NetworkImage(widget.userResponse.profileImage!),
-          )
-        else
-          CircleAvatar(
-            radius: 22.5,
-            backgroundColor: Colors.grey[300],
-            child: Icon(Icons.person, size: 26, color: Colors.grey[600]),
-          ),
+        UserAvatar(
+          imageUrl: widget.userResponse.profileImage,
+          radius: 22.5,
+        ),
         Flexible(
           child: Text(
             widget.userResponse.name,

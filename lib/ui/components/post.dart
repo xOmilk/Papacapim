@@ -4,6 +4,7 @@ import 'package:flutter_project/utils/format_date.dart';
 import 'package:flutter_project/utils/posts_utils.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_project/ui/components/user_avatar.dart';
 import 'package:flutter_project/models/responses/post_response.dart';
 import 'package:go_router/go_router.dart';
 
@@ -107,23 +108,10 @@ class _PostState extends ConsumerState<Post> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (widget.postResponse.user?.profileImage != null)
-                      CircleAvatar(
-                        radius: 22.5,
-                        backgroundImage: NetworkImage(
-                          widget.postResponse.user!.profileImage!,
-                        ),
-                      )
-                    else
-                      CircleAvatar(
-                        radius: 22.5,
-                        backgroundColor: Colors.grey[300],
-                        child: Icon(
-                          Icons.person,
-                          size: 26,
-                          color: Colors.grey[600],
-                        ),
-                      ),
+                    UserAvatar(
+                      imageUrl: widget.postResponse.user?.profileImage,
+                      radius: 22.5,
+                    ),
                     const SizedBox(width: 8),
                     Flexible(
                       child: Text(

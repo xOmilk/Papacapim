@@ -11,6 +11,7 @@ import 'package:flutter_project/ui/components/post.dart';
 import 'package:flutter_project/ui/components/show_delete_post_dialog.dart';
 import 'package:flutter_project/ui/components/show_logout_popup.dart';
 import 'package:flutter_project/ui/components/show_message.dart';
+import 'package:flutter_project/ui/components/user_avatar.dart';
 import 'package:flutter_project/utils/navigation_utils.dart';
 import 'package:flutter_project/utils/posts_utils.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -208,21 +209,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     children: [
-                      if (user.profileImage != null)
-                        SizedBox(
-                          width: 80,
-                          height: 80,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(100),
-                            child: Image.network(
-                              user.profileImage!,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return const Icon(Icons.broken_image, size: 64);
-                              },
-                            ),
-                          ),
-                        ),
+                      UserAvatar(imageUrl: user.profileImage, radius: 30,),
 
                       if (user.profileImage != null) const SizedBox(height: 8),
 
@@ -395,7 +382,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                     showDeletePostDialog(
                                       context,
                                       post,
-                                      () async => onDeletePost(post, user.login),
+                                      () async =>
+                                          onDeletePost(post, user.login),
                                     );
                                   }
                                 : null,
