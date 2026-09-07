@@ -17,11 +17,7 @@ class UserAvatar extends StatelessWidget {
       return CircleAvatar(
         radius: radius,
         backgroundColor: Colors.grey[300],
-        child: Icon(
-          Icons.person,
-          size: radius * 1.15, // aumenta o tamanho conforme a borda
-          color: Colors.grey[600],
-        ),
+        child: Icon(Icons.person, size: radius * 1.15, color: Colors.grey[600]),
       );
     }
   }

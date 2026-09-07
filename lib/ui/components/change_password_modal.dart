@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_project/models/requests/update_user_request.dart';
 import 'package:flutter_project/repositories/user_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 void changePasswordModal(WidgetRef ref, BuildContext context) {
   final formKey = GlobalKey<FormState>();
@@ -34,6 +35,7 @@ void changePasswordModal(WidgetRef ref, BuildContext context) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text("Senha alterada com sucesso.")));
+        context.replace("/auth");
       } catch (e) {
         ScaffoldMessenger.of(
           context,

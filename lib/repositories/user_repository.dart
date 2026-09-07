@@ -24,13 +24,10 @@ class UserRepository {
     }
   }
 
-  Future<List<UserResponse>> listUsers({
-    int? page = 0,
-
-    String? search,
-  }) async {
+  Future<List<UserResponse>> listUsers({int? page = 0, String? search}) async {
     final queryParams = <String, dynamic>{
-      if (search != null && search.trim().isNotEmpty) 'search': search.trim().toString(),
+      if (search != null && search.trim().isNotEmpty)
+        'search': search.trim().toString(),
     };
 
     try {
@@ -50,9 +47,25 @@ class UserRepository {
 
   Future<void> updateUser(UpdateUserRequest updateUserRequest) async {
     try {
-      await _dio.patch("/users/1", data: updateUserRequest.toJson());
+      Map<String, dynamic> data = {};
+      if (updateUserRequest.name != null) {
+        data['login'] = updateUserRequest.login;
+      }
+      if (updateUserRequest.name != null) {
+        data['name'] = updateUserRequest.name;
+      }
+      if (updateUserRequest.password != null) {
+        data['password'] = updateUserRequest.password;
+      }
+      if (updateUserRequest.passwordConfirmation != null) {
+        data['password_confirmation'] = updateUserRequest.passwordConfirmation;
+      }
+      if (updateUserRequest.imageData != null) {
+        data['image_data'] = updateUserRequest.imageData;
+      }
+
+      await _dio.patch("/users/1", data: data);
     } catch (e) {
-      print(e);
       rethrow;
     }
   }
@@ -69,6 +82,15 @@ class UserRepository {
   Future<void> unfollowUser(String login) async {
     try {
       await _dio.delete("/users/$login/followers/me");
+      return;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> deleteUser() async {
+    try {
+      await _dio.delete("/users/me");
       return;
     } catch (e) {
       rethrow;

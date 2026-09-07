@@ -1,7 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_project/repositories/user_repository.dart';
+import 'package:flutter_project/ui/components/show_message.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-void deleteProfileDialog(BuildContext context) {
+void deleteProfileDialog(WidgetRef ref, BuildContext context) {
+  void onSubmit() async {
+    final usersRepo = ref.read(usersRepositoryProvider);
+
+    try {
+      await usersRepo.deleteUser();
+      Navigator.of(context).pop();
+      context.replace("/auth");
+    } catch (e) {
+      showMessage(context, "Erro ao excluir a conta.", isError: true);
+    }
+  }
+
   showDialog(
     context: context,
     builder: (context) => AlertDialog(
@@ -26,10 +41,7 @@ void deleteProfileDialog(BuildContext context) {
               Theme.of(context).colorScheme.error,
             ),
           ),
-          onPressed: () {
-            Navigator.of(context).pop();
-            context.replace("/auth");
-          },
+          onPressed: onSubmit,
           child: const Text("Excluir"),
         ),
       ],

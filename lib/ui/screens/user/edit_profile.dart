@@ -254,7 +254,7 @@ class _EditProfileState extends ConsumerState<EditProfile> {
                         Theme.of(context).colorScheme.error,
                       ),
                     ),
-                    onPressed: () => deleteProfileDialog(context),
+                    onPressed: () => deleteProfileDialog(ref, context),
                     child: Text("Excluir conta"),
                   ),
                 ),
