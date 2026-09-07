@@ -27,7 +27,7 @@ class ProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
-  late Future<UserResponse> user;
+  late Future<UserResponse?> user;
 
   bool following = false;
   int followingNumber = 0;
@@ -49,7 +49,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     }
 
     user.then((value) {
-      if (!mounted) return;
+      if (!mounted || value == null) return;
 
       setState(() {
         following = value.youFollow as bool;
@@ -183,7 +183,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             ),
         ],
       ),
-      body: FutureBuilder<UserResponse>(
+      body: FutureBuilder<UserResponse?>(
         future: user,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {

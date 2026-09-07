@@ -11,12 +11,17 @@ class PostRepository {
 
   PostRepository({required this._dio});
 
-  Future<PostResponse> getPost(int postId) async {
+  Future<PostResponse?> getPost(int postId) async {
     try {
       final post = await _dio
           .get("/posts/$postId")
           .then((onValue) => onValue.data);
       return PostResponse.fromJson(post);
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404) {
+        return null;
+      }
+      rethrow;
     } catch (e) {
       rethrow;
     }

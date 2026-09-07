@@ -10,10 +10,15 @@ class UserRepository {
 
   UserRepository({required this._dio});
 
-  Future<UserResponse> getUser(String login) async {
+  Future<UserResponse?> getUser(String login) async {
     try {
       final response = await _dio.get("/users/$login");
       return UserResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404) {
+        return null;
+      }
+      rethrow;
     } catch (e) {
       rethrow;
     }

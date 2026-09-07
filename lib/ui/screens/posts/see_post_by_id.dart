@@ -13,7 +13,7 @@ class SeePostById extends ConsumerStatefulWidget {
 }
 
 class _SeePostByIdState extends ConsumerState<SeePostById> {
-  late Future<PostResponse> _postFuture;
+  late Future<PostResponse?> _postFuture;
 
   @override
   void initState() {
@@ -23,7 +23,7 @@ class _SeePostByIdState extends ConsumerState<SeePostById> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<PostResponse>(
+    return FutureBuilder<PostResponse?>(
       future: _postFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
