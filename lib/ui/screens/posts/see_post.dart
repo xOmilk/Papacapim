@@ -39,7 +39,7 @@ class _SeePostState extends ConsumerState<SeePost> {
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
-                  Post(postResponse: widget.post),
+                  Post(postResponse: widget.post, showParentPost: true,),
                   Text(
                     "Replies",
                     style: TextStyle(
