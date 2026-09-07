@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_project/repositories/like_repository.dart';
 import 'package:flutter_project/ui/components/show_message.dart';
 import 'package:flutter_project/utils/format_date.dart';
@@ -6,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_project/ui/components/user_avatar.dart';
 import 'package:flutter_project/models/responses/post_response.dart';
+import 'package:flutter_project/ui/components/list_likes_modal.dart';
 import 'package:go_router/go_router.dart';
 
 class Post extends ConsumerStatefulWidget {
@@ -164,6 +166,7 @@ class _PostState extends ConsumerState<Post> {
             Row(
               children: [
                 IconButton(
+                  onLongPress: () => listLikesModal(context, ref, widget.postResponse.id),
                   onPressed: onLikeTap,
                   icon: Icon(
                     Icons.thumb_up,

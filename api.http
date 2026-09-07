@@ -20,9 +20,14 @@ POST {{BASE_URL}}/sessions
 Content-Type: application/json
 
 {
-    "login": "luan_coelho",
-    "password": "luan123"
+    "login": "daniboy",
+    "password": "12345"
 }
+
+### listar seguidores
+GET {{BASE_URL}}/users/daniboy/followers
+x-session-token: 98533c22-1711-4795-ae86-52308859ee33
+
 
 ### Logout
 

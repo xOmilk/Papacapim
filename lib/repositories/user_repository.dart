@@ -96,6 +96,17 @@ class UserRepository {
       rethrow;
     }
   }
+
+  Future<List<UserResponse>> listFollowers(String login) async {
+    try {
+      final response = await _dio.get("/users/$login/followers");
+      return (response.data as List)
+          .map((follower) => UserResponse.fromJson(follower["follower"]))
+          .toList();
+    } catch (e) {
+      rethrow;
+    }
+  }
 }
 
 final usersRepositoryProvider = Provider<UserRepository>((ref) {

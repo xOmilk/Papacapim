@@ -18,18 +18,18 @@ class _UserState extends ConsumerState<User> {
     return Row(
       spacing: 10,
       children: [
-        UserAvatar(
-          imageUrl: widget.userResponse.profileImage,
-          radius: 22.5,
-        ),
+        UserAvatar(imageUrl: widget.userResponse.profileImage, radius: 22.5),
         Flexible(
           child: Text(
             widget.userResponse.name,
             overflow: TextOverflow.ellipsis,
           ),
         ),
-        Text("@${widget.userResponse.login}"),
-        if (widget.userResponse.youFollow!)
+        Text(
+          "@${widget.userResponse.login}",
+          style: TextStyle(color: Colors.grey[500]),
+        ),
+        if (widget.userResponse.youFollow == true)
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
             decoration: BoxDecoration(
@@ -41,6 +41,21 @@ class _UserState extends ConsumerState<User> {
               style: TextStyle(
                 fontSize: 12,
                 color: Theme.of(context).colorScheme.onSecondaryContainer,
+              ),
+            ),
+          ),
+        if (widget.userResponse.followsYou == true)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            decoration: BoxDecoration(
+              color: Colors.blue[900],
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              "Segue você",
+              style: TextStyle(
+                fontSize: 12,
+                // color: Theme.of(context).colorScheme.onSecondaryContainer,
               ),
             ),
           ),

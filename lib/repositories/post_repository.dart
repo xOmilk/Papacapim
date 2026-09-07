@@ -3,6 +3,7 @@ import 'package:flutter_project/models/requests/create_post_request.dart';
 import 'package:flutter_project/models/requests/reply_post_request.dart';
 import 'package:flutter_project/models/responses/create_post_response.dart';
 import 'package:flutter_project/models/responses/post_response.dart';
+import 'package:flutter_project/models/responses/user_response.dart';
 import 'package:flutter_project/notifiers/dio_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -123,6 +124,17 @@ class PostRepository {
     try {
       await _dio.delete("/posts/$postId");
       return "Sua publicação foi excluida.";
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<UserResponse>> listLikes(int postId) async {
+    try {
+      final response = await _dio.get("/posts/$postId/likes");
+      return (response.data as List)
+          .map((like) => UserResponse.fromJson(like["user"]))
+          .toList();
     } catch (e) {
       rethrow;
     }
