@@ -1,0 +1,40 @@
+name: Build Android APK
+
+on:
+    push:
+        branches:
+            - main
+
+permissions:
+    contents: write
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Setup Java
+              uses: actions/setup-java@v4
+              with:
+                  distribution: "zulu"
+                  java-version: "17"
+
+            - name: Setup Flutter
+              uses: subosito/flutter-action@v2
+              with:
+                  channel: "stable"
+
+            - name: Get dependencies
+              run: flutter pub get
+
+            - name: Build APK
+              run: flutter build apk --release
+
+            - name: Create Release
+              uses: softprops/action-gh-release@v2
+              with:
+                  tag_name: latest
+                  name: "Última Versão (Automática)"
+                  body: "Este é o build mais recente gerado automaticamente a partir da branch principal para testes."
+                  files: build/app/outputs/flutter-apk/app-release.apk

@@ -6,7 +6,8 @@
 	"recommendations": [
 		"humao.rest-client",
 		"Dart-Code.flutter",
-		"waderyan.gitblame"
+		"waderyan.gitblame",
+		"github.vscode-github-actions"
 	],
 	// List of extensions recommended by Antigravity IDE that should not be recommended for users of this workspace.
 	"unwantedRecommendations": []
