@@ -3,6 +3,7 @@ import 'package:flutter_project/ui/screens/auth/auth_screen.dart';
 import 'package:flutter_project/ui/screens/home/home_screen.dart';
 import 'package:flutter_project/ui/screens/posts/create_post_screen.dart';
 import 'package:flutter_project/ui/screens/posts/see_post.dart';
+import 'package:flutter_project/ui/screens/posts/see_post_by_id.dart';
 import 'package:flutter_project/ui/screens/user/edit_profile.dart';
 import 'package:flutter_project/ui/screens/user/profile.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -34,6 +35,13 @@ final Provider<GoRouter> routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final post = state.extra as PostResponse;
           return SeePost(post: post);
+        },
+      ),
+      GoRoute(
+        path: "/post-by-id",
+        builder: (context, state) {
+          final postId = state.extra as int;
+          return SeePostById(postId: postId);
         },
       ),
       GoRoute(

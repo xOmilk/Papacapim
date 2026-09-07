@@ -388,6 +388,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           onTap: () => PostsUtils.onPostTap(context, post),
                           child: Post(
                             postResponse: post,
+                            showParentPost: true,
                             maxLines: 5,
                             onDelete: widget.login == null
                                 ? () {

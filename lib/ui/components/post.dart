@@ -1,6 +1,7 @@
 import 'package:flutter_project/repositories/like_repository.dart';
 import 'package:flutter_project/ui/components/show_message.dart';
 import 'package:flutter_project/utils/format_date.dart';
+import 'package:flutter_project/utils/posts_utils.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_project/models/responses/post_response.dart';
@@ -8,11 +9,13 @@ import 'package:go_router/go_router.dart';
 
 class Post extends ConsumerStatefulWidget {
   final PostResponse postResponse;
+  final bool showParentPost;
   final int? maxLines;
   final VoidCallback? onDelete;
 
   const Post({
     required this.postResponse,
+    this.showParentPost = false,
     this.maxLines,
     this.onDelete,
     super.key,
@@ -66,36 +69,71 @@ class _PostState extends ConsumerState<Post> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        if (widget.showParentPost && widget.postResponse.postId != null)
+          GestureDetector(
+            onTap: () {
+              PostsUtils.onPostTapById(context, widget.postResponse.postId!);
+            },
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 8.0, left: 2.0),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.reply,
+                    size: 16,
+                    color: Theme.of(context).colorScheme.outline,
+                  ),
+                  const SizedBox(width: 4),
+                  InkWell(
+                    child: Text(
+                      "Respondendo a um post",
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.outline,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            GestureDetector(
-              onTap: onProfileTap,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (widget.postResponse.user?.profileImage != null)
-                    CircleAvatar(
-                      radius: 22.5,
-                      backgroundImage: NetworkImage(widget.postResponse.user!.profileImage!),
-                    )
-                  else
-                    CircleAvatar(
-                      radius: 22.5,
-                      backgroundColor: Colors.grey[300],
-                      child: Icon(
-                        Icons.person,
-                        size: 26,
-                        color: Colors.grey[600],
+            Flexible(
+              child: GestureDetector(
+                onTap: onProfileTap,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (widget.postResponse.user?.profileImage != null)
+                      CircleAvatar(
+                        radius: 22.5,
+                        backgroundImage: NetworkImage(
+                          widget.postResponse.user!.profileImage!,
+                        ),
+                      )
+                    else
+                      CircleAvatar(
+                        radius: 22.5,
+                        backgroundColor: Colors.grey[300],
+                        child: Icon(
+                          Icons.person,
+                          size: 26,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        widget.postResponse.user?.name ?? "",
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                  SizedBox(width: 8),
-                  Text(
-                    widget.postResponse.user?.name ?? "",
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
             if (widget.onDelete != null)

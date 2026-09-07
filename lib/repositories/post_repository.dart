@@ -11,6 +11,17 @@ class PostRepository {
 
   PostRepository({required this._dio});
 
+  Future<PostResponse> getPost(int postId) async {
+    try {
+      final post = await _dio
+          .get("/posts/$postId")
+          .then((onValue) => onValue.data);
+      return PostResponse.fromJson(post);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   Future<CreatePostResponse> createNewPost(
     CreatePostRequest postRequest,
   ) async {
@@ -49,7 +60,8 @@ class PostRepository {
   }) async {
     final queryParams = <String, dynamic>{
       'feed': feed,
-      if (search != null && search.trim().isNotEmpty) 'search': search.trim().toString(),
+      if (search != null && search.trim().isNotEmpty)
+        'search': search.trim().toString(),
     };
 
     try {

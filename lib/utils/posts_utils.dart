@@ -6,4 +6,8 @@ class PostsUtils {
   static void onPostTap(BuildContext context, PostResponse post) {
     context.push("/post", extra: post);
   }
+
+  static void onPostTapById(BuildContext context, int postId) {
+    context.push("/post-by-id", extra: postId);
+  }
 }

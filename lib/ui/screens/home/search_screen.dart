@@ -136,7 +136,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                             PostsUtils.onPostTap(context, searchPosts![index]),
                         child: Post(
                           postResponse: searchPosts![index],
-                          maxLines: 5,
+                          maxLines: 3,
                         ),
                       ),
                       separatorBuilder: (context, index) => const Padding(
