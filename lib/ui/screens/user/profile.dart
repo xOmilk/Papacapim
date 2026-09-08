@@ -40,9 +40,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
     final authRepo = ref.read(authRepositoryProvider);
     final usersRepo = ref.read(usersRepositoryProvider);
-    final preferences = ref.read(prefsProvider);
-
-    final preferencesLogin = preferences.getLogin();
 
     if (!isOwnProfile()) {
       user = usersRepo.getUser(widget.login!);
@@ -278,7 +275,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               ),
 
                               GestureDetector(
-                                onTap: () => listFollowersModal(context, ref, user.login),
+                                onTap: () => listFollowersModal(
+                                  context,
+                                  ref,
+                                  user.login,
+                                ),
                                 child: Column(
                                   children: [
                                     Text(
