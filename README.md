@@ -1,7 +1,7 @@
-# 🐦 Papacapim
+# Papacapim
 
 
-## 📱 Download e Instalação (Android)
+## Download e Instalação (Android)
 
 Para testar o aplicativo diretamente no seu celular Android, baixe a versão de desenvolvimento mais recente gerada automaticamente:
 

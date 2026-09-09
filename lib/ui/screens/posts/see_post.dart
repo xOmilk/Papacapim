@@ -39,7 +39,7 @@ class _SeePostState extends ConsumerState<SeePost> {
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
-                  Post(postResponse: widget.post, showParentPost: true,),
+                  Post(postResponse: widget.post, showParentPost: true),
                   Text(
                     "Replies",
                     style: TextStyle(
@@ -84,7 +84,11 @@ class _SeePostState extends ConsumerState<SeePost> {
                           child: InkWell(
                             onTap: () =>
                                 PostsUtils.onPostTap(context, data[index]),
-                            child: Post(postResponse: data[index], maxLines: 5),
+                            child: Post(
+                              postResponse: data[index],
+                              maxLines: 5,
+                              showParentPost: false,
+                            ),
                           ),
                         ),
                       ],

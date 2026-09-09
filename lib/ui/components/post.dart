@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_project/repositories/like_repository.dart';
 import 'package:flutter_project/ui/components/show_message.dart';
 import 'package:flutter_project/utils/format_date.dart';
@@ -18,7 +17,7 @@ class Post extends ConsumerStatefulWidget {
 
   const Post({
     required this.postResponse,
-    this.showParentPost = false,
+    this.showParentPost = true,
     this.maxLines,
     this.onDelete,
     super.key,
@@ -73,31 +72,36 @@ class _PostState extends ConsumerState<Post> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (widget.showParentPost && widget.postResponse.postId != null)
-          GestureDetector(
-            onTap: () {
-              PostsUtils.onPostTapById(context, widget.postResponse.postId!);
-            },
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 8.0, left: 2.0),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.reply,
-                    size: 16,
-                    color: Theme.of(context).colorScheme.outline,
-                  ),
-                  const SizedBox(width: 4),
-                  InkWell(
-                    child: Text(
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8.0),
+            child: InkWell(
+              onTap: () {
+                PostsUtils.onPostTapById(context, widget.postResponse.postId!);
+              },
+              borderRadius: BorderRadius.circular(4),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.reply,
+                      size: 16,
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
                       "Respondendo a um post",
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.outline,
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
+                        decoration: TextDecoration.underline,
+                        decorationColor: Theme.of(context).colorScheme.outline,
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

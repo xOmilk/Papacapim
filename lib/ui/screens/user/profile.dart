@@ -274,7 +274,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                 ),
                               ),
 
-                              GestureDetector(
+                              InkWell(
+                                borderRadius: BorderRadius.all(Radius.circular(5)),
                                 onTap: () => listFollowersModal(
                                   context,
                                   ref,
