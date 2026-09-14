@@ -48,8 +48,21 @@ class _FeedListViewState extends ConsumerState<FeedListView> {
             ref.read(feedProvider(widget.params).notifier).refresh(),
         child: ListView.separated(
           controller: _scrollController,
+          physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.all(16),
           itemBuilder: (context, index) {
+            if (state.posts.isEmpty) {
+              return const Padding(
+                padding: EdgeInsets.symmetric(vertical: 64),
+                child: Center(
+                  child: Text(
+                    "Não há nenhum post aqui",
+                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                  ),
+                ),
+              );
+            }
+
             if (index >= state.posts.length) {
               return const Padding(
                 padding: EdgeInsets.symmetric(vertical: 16),

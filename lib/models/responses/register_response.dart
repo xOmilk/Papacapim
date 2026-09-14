@@ -13,7 +13,7 @@ class RegisterResponse {
     return RegisterResponse(
       login: json["login"],
       name: json["name"],
-      createdAt: json["created_at"],
+      createdAt: DateTime.parse(json["created_at"]),
     );
   }
 
