@@ -10,7 +10,7 @@ class FeedState {
 
   FeedState({required this.posts, required this.page});
 
-  FeedState copyWith({List<PostResponse>? posts, int? page, bool? hasMore}) =>
+  FeedState copyWith({List<PostResponse>? posts, int? page}) =>
       FeedState(posts: posts ?? this.posts, page: page ?? this.page);
 }
 
@@ -21,7 +21,7 @@ class FeedNotifier extends AsyncNotifier<FeedState> {
 
   @override
   Future<FeedState> build() async {
-    final firstPage = await ref.read(
+    final firstPage = await ref.watch(
       postProvider((feed: params.feed, page: 0, search: params.search)).future,
     );
     return FeedState(posts: firstPage, page: 0);
