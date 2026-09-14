@@ -30,6 +30,7 @@ class Post extends ConsumerStatefulWidget {
 class _PostState extends ConsumerState<Post> {
   bool liked = false;
   int likes = 0;
+  int _currentMediaIndex = 0;
 
   void onProfileTap() {
     context.push("/profile", extra: widget.postResponse.user?.login);
@@ -80,7 +81,10 @@ class _PostState extends ConsumerState<Post> {
               },
               borderRadius: BorderRadius.circular(4),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 4.0,
+                  vertical: 2.0,
+                ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -145,6 +149,64 @@ class _PostState extends ConsumerState<Post> {
           overflow: widget.maxLines == null ? null : TextOverflow.ellipsis,
         ),
         SizedBox(height: 4),
+
+        Builder(
+          builder: (context) {
+            final media = widget.postResponse.media;
+
+            if (media != null && media.isNotEmpty) {
+              return Column(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(15),
+                    child: AspectRatio(
+                      aspectRatio: 1,
+                      child: PageView.builder(
+                        itemCount: media.length,
+                        onPageChanged: (index) {
+                          setState(() {
+                            _currentMediaIndex = index;
+                          });
+                        },
+                        itemBuilder: (context, index) {
+                          return Image.network(
+                            media[index].mediumUrl,
+                            fit: BoxFit
+                                .contain, 
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  // Se houver mais de uma imagem, mostra as bolinhas
+                  if (media.length > 1)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(
+                          media.length,
+                          (index) => Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 4),
+                            width: 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: index == _currentMediaIndex
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Colors.grey.shade400,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            }
+            return const SizedBox.shrink();
+          },
+        ),
         Padding(
           padding: const EdgeInsetsGeometry.directional(top: 8, bottom: 4),
           child: Text(
@@ -170,7 +232,8 @@ class _PostState extends ConsumerState<Post> {
             Row(
               children: [
                 IconButton(
-                  onLongPress: () => listLikesModal(context, ref, widget.postResponse.id),
+                  onLongPress: () =>
+                      listLikesModal(context, ref, widget.postResponse.id),
                   onPressed: onLikeTap,
                   icon: Icon(
                     Icons.thumb_up,

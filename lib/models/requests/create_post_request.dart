@@ -1,20 +1,51 @@
-class CreatePostRequest {
-  final String message;
+class Media {
+  String medium_type;
+  String medium_data;
 
-  CreatePostRequest({required this.message});
+  Media(this.medium_data, this.medium_type);
 
-  factory CreatePostRequest.fromJson(Map<String, dynamic> json) {
-    final post = json['post'] as Map<String, dynamic>;
-    return CreatePostRequest(
-      message: post['message'] as String,
+  factory Media.fromJson(Map<String, dynamic> json) {
+    return Media(
+      json['medium_data'] as String,
+      json['medium_type'] as String,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      "post": {
-        "message": message,
-      },
+      "medium_type": medium_type,
+      "medium_data": medium_data,
     };
   }
 }
+
+class CreatePostRequest {
+  final String message;
+  List<Media>? media;
+
+  CreatePostRequest({required this.message, this.media});
+
+  factory CreatePostRequest.fromJson(Map<String, dynamic> json) {
+    return CreatePostRequest(
+      message: json['message'] as String,
+      media: json['media'] != null
+          ? (json['media'] as List<dynamic>)
+              .map((e) => Media.fromJson(e as Map<String, dynamic>))
+              .toList()
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = {
+      "message": message,
+    };
+
+    if (media != null && media!.isNotEmpty) {
+      data["media"] = media!.map((e) => e.toJson()).toList();
+    }
+
+    return data;
+  }
+}
+
