@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_project/models/responses/user_response.dart';
 import 'package:flutter_project/ui/components/change_password_modal.dart';
 import 'package:flutter_project/ui/components/delete_profile_dialog.dart';
+import 'package:flutter_project/ui/components/user_avatar.dart';
 import 'package:flutter_project/utils/navigation_utils.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -85,10 +86,18 @@ class _EditProfileState extends ConsumerState<EditProfile> {
       }
       await preferences.clearAuth();
       ref.invalidate(tokenProvider);
-      showMessage(context, "Usuário alterado com sucesso");
-      context.replace("/auth");
+
+      if (mounted) {
+        showMessage(
+          context,
+          "Usuário alterado com sucesso, efetue login novamente",
+        );
+        context.replace("/auth");
+      }
     } catch (e) {
-      showMessage(context, "Erro ao alterar usuário", isError: true);
+      if (mounted) {
+        showMessage(context, "Erro ao alterar usuário", isError: true);
+      }
     }
   }
 
@@ -171,25 +180,12 @@ class _EditProfileState extends ConsumerState<EditProfile> {
                             ),
                             child: InkWell(
                               onTap: onImageTap,
-                              child: data.profileImage != null
-                                  ? imagePath != null
-                                        ? Image.file(File(imagePath!))
-                                        : Image.network(
-                                            data.profileImage!,
-                                            fit: BoxFit.cover,
-                                            errorBuilder:
-                                                (context, error, stackTrace) {
-                                                  return const Icon(
-                                                    Icons.broken_image,
-                                                    size: 64,
-                                                  );
-                                                },
-                                          )
-                                  : ColoredBox(
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.outline,
-                                    ),
+                              child: UserAvatar(
+                                imageUrl: data.profileImage,
+                                imageFile: imagePath != null
+                                    ? File(imagePath!)
+                                    : null,
+                              ),
                             ),
                           ),
                         );
@@ -202,13 +198,13 @@ class _EditProfileState extends ConsumerState<EditProfile> {
                         onTap: onImageTap,
                         child: Container(
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.all(
+                            borderRadius: const BorderRadius.all(
                               Radius.circular(100),
                             ),
                             color: Theme.of(context).colorScheme.outlineVariant,
                           ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(4),
+                          child: const Padding(
+                            padding: EdgeInsets.all(4),
                             child: Icon(Icons.edit),
                           ),
                         ),
@@ -216,15 +212,47 @@ class _EditProfileState extends ConsumerState<EditProfile> {
                     ),
                   ],
                 ),
-                SizedBox(height: 8),
+                if (imagePath != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text(
+                      "Nova foto (não salva)",
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                const SizedBox(height: 24),
                 TextFormField(
                   controller: _loginController,
-                  decoration: InputDecoration(hintText: "Login"),
+                  decoration: InputDecoration(
+                    labelText: "Login",
+                    hintText: "Ex: seu_usuario",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    prefixIcon: Icon(
+                      Icons.alternate_email,
+                      color: Theme.of(context).colorScheme.outlineVariant,
+                    ),
+                  ),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 16),
                 TextFormField(
                   controller: _nameController,
-                  decoration: InputDecoration(hintText: "Nome"),
+                  decoration: InputDecoration(
+                    labelText: "Nome",
+                    hintText: "Ex: Gabriel Silva",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    prefixIcon: Icon(
+                      Icons.person_outline,
+                      color: Theme.of(context).colorScheme.outlineVariant,
+                    ),
+                  ),
                 ),
                 SizedBox(height: 8),
                 SizedBox(

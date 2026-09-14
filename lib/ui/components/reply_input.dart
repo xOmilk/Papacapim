@@ -36,8 +36,11 @@ class _ReplyInputState extends ConsumerState<ReplyInput> {
       await postRepository.createNewReply(widget.postId, replyRequest);
       ref.invalidate(repliesProvider(widget.postId));
     } catch (e) {
-      showMessage(context, "Ocorreu um erro", isError: true);
+      if (mounted) {
+        showMessage(context, "Ocorreu um erro", isError: true);
+      }
     } finally {
+      _replyController.clear();
       if (mounted) {
         setState(() {
           loading = false;

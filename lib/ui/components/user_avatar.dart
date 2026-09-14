@@ -1,14 +1,26 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 
 class UserAvatar extends StatelessWidget {
   final String? imageUrl;
+  final File? imageFile;
   final double radius;
 
-  const UserAvatar({super.key, this.imageUrl, this.radius = 22.5});
+  const UserAvatar({
+    super.key,
+    this.imageUrl,
+    this.imageFile,
+    this.radius = 22.5,
+  });
 
   @override
   Widget build(BuildContext context) {
-    if (imageUrl != null && imageUrl!.isNotEmpty) {
+    if (imageFile != null) {
+      return CircleAvatar(
+        radius: radius,
+        backgroundImage: FileImage(imageFile!),
+      );
+    } else if (imageUrl != null && imageUrl!.isNotEmpty) {
       return CircleAvatar(
         radius: radius,
         backgroundImage: NetworkImage(imageUrl!),
